@@ -17,7 +17,9 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+    
     HttpServer::new(|| {
         App::new().service(hello).service(echo).route("/hey", web::get().to(manual_hello))
     }).bind(("localhost", 8080))?.run().await
+    
 }
