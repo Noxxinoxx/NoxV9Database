@@ -19,9 +19,8 @@ async fn manual_hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let test = database::testFunction("or not hej");
+    database::read_database();
 
-    println!("hej {}", test);
 
     HttpServer::new(|| {
         App::new().service(hello).service(echo).route("/hey", web::get().to(manual_hello))
