@@ -1,8 +1,5 @@
 use serde_json::Value;
 use std::fs;
-use serde_json::Serializer; 
-use serde_json::Deserializer;
-#[derive(Serialize, Deserialize)]
 struct User {
     name : String, 
     email : String, 
@@ -12,26 +9,20 @@ struct User {
 pub fn read_database() {
     let user_database = {
         let file_content = fs::read_to_string("./Database/database.json").expect("LogRocket : error"); 
-        
-
         let json = serde_json::from_str::<Value>(&file_content).expect("LogRocket : error in serializern");
 
-        let mut data : Vec<User> = Vec::new();
+        let mut data : Vec<Value> = Vec::new();
 
         if let serde_json::Value::Array(items) = json {
             for item in items {
                 println!("{}", item);
-
-                let p : User = 
+                data.push(item);
             }
         }
-        
-        
-
-        
+        data
 
     };
 
-    println!("{:?}", &user_database);
+    println!("{:?}", &user_database[0]["name"]);
 
 }
