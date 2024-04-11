@@ -2,6 +2,7 @@ use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 mod database;
 mod init;
 mod hashing;
+mod databasewriter;
 
 
 /*

@@ -1,10 +1,5 @@
-use serde_json::Value;
-use std::fs;
-use serde_json::Serializer; 
-use serde_json::Deserializer;
-
 use crate::hashing;
-
+use crate::databasewriter;
 pub struct User {
     name : String, 
     email : String, 
@@ -21,8 +16,8 @@ impl User {
         }
     }    
 
-    pub fn get_user_object(self) {
-        self;
+    pub fn get_user_object(self) -> User {
+        return self;
     }
 
     pub fn set_user_object(self,name: String, email: String, password: String) {
@@ -36,7 +31,10 @@ impl User {
         let hash1 = password_hash.password(&password, false, password_hash.retrieve_salt(&hash));
         
         println!("{}", hash1);
-    
+        let writer : databasewriter::Writer = databasewriter::Writer::new();
+        writer.read_database();
+
+        
     }
 
 
