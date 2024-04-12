@@ -34,6 +34,8 @@ impl User {
         let writer : databasewriter::Writer = databasewriter::Writer::new();
         writer.read_database();
 
+        println!("{}", writer.read_database_id(0));
+
         
     }
 
