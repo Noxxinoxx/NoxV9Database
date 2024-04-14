@@ -84,7 +84,7 @@ impl Hash {
         let alh : String = "abcdefghijklmnopqrstyvw123456789!?".to_string();
 
         //move the char by its hash type.
-        for i in 0..(password.len() ) as i32 {
+        for i in 0..(password.len()) as i32 {
             
             let c: String = self.hashtype.as_bytes()[i as usize].to_string();
             let hash_type_number = c.parse::<i32>().unwrap();

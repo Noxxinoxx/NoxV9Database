@@ -22,22 +22,28 @@ impl User {
 
     pub fn set_user_object(self,name: String, email: String, password: String) {
         let mut password_hash : hashing::Hash = hashing::Hash::new();
-        let hash = password_hash.password(&password, false, "55718428862".to_string());
-    
-        println!("{}", hash);
-    
-        println!("{}", password_hash.retrieve_salt(&hash));
-
-        let hash1 = password_hash.password(&password, false, password_hash.retrieve_salt(&hash));
+        let hash = password_hash.password(&password, true, "55718428862".to_string());
         
-        println!("{}", hash1);
         let writer : databasewriter::Writer = databasewriter::Writer::new();
+    
         writer.read_database();
+        
+        let mut object_builder : String = "".to_string();
+
+        object_builder.push_str(&name);
+        object_builder.push_str(";");
+        object_builder.push_str(&email);
+        object_builder.push_str(";");
+        object_builder.push_str(&hash);
+        object_builder.push_str(";");
+
+        writer.write_database(object_builder.to_string());
 
         println!("{}", writer.read_database_id(0));
 
         
     }
 
+    
 
 }
