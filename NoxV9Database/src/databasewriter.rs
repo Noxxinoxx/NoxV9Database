@@ -8,7 +8,7 @@ pub struct Writer {
 impl Writer {
     pub fn new() -> Writer {
         Writer {
-            path : "D:/NoxDatabase/NoxV9Database/NoxV9Database/NoxV9Database/Database/database.txt".to_string(),
+            path : "D:/NoxDatabase/NoxV9Database/NoxV9Database/NoxV9Database/Database/database.csv".to_string(),
         }
     }
 
@@ -17,8 +17,6 @@ impl Writer {
         let mut database : String = self.read_database();
         data.push_str("\n");
         database.push_str(&data);
-
-        println!("{}",database);
 
         let res : std::io::Result<()> = self.write_to_file(database);
 
@@ -40,13 +38,23 @@ impl Writer {
         return data;
     }
 
-    pub fn read_database_id(&self,id: i32) -> String{
-        
+    pub fn get_database_length(&self) -> usize {
         let data : String = self.read_database();
-        let indexable : Vec<&str> = data.split(";").collect();
-        
+        let indexed : Vec<&str> = data.split("\n").collect();
+        let length : usize = indexed.len(); 
+        return length;
+    }
+
+    pub fn read_database_id(&self,id: i32) -> String{
+        let data : String = self.read_database();
+        let indexable : Vec<&str> = data.split("\n").collect();
         return indexable[id as usize].to_string();
-    
+    }
+
+    pub fn get_data_points(&self,row: i32, col: i32) -> String{
+        let data : String = self.read_database_id(row);
+        let indexable : Vec<&str> = data.split(",").collect();
+        return indexable[col as usize].to_string();
     }
 
     

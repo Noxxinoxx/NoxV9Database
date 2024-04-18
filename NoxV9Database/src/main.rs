@@ -39,5 +39,7 @@ async fn main() -> std::io::Result<()> {
 
 fn main() {
     let user : database::User = database::User::new();
-    user.set_user_object("Noa".to_string(), "Noxdator@outlook.com".to_string(), "MyPasswordIsStrong!".to_string());
+    user.set_user_object("Leo".to_string(), "Leo@outlook.com".to_string(), "LeosPasswordIsStrong!".to_string(), false);
+
+
 }

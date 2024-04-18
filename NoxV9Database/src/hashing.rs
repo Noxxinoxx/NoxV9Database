@@ -34,14 +34,12 @@ impl Hash {
         }
     }
 
+    pub fn set_hash_type(&mut self, hash_type: String) {
+        self.hashtype = hash_type;
+    }
 
-    pub fn password(&mut self,password: &String, register: bool, hash_type: String) -> String{
+    pub fn password(&mut self,password: &String) -> String{
 
-        if(register) {
-            self.hashtype = self.gen_hash_type(password);
-        }else {
-            self.hashtype = hash_type; 
-        }
         
         let password_hash : String = self.encrypt(password);
         let mut final_password_hash: String = "".to_string();
@@ -61,7 +59,7 @@ impl Hash {
 
     
 
-    fn gen_hash_type(&self, password: &String) -> String {
+    pub fn gen_hash_type(&mut self, password: &String){
 
         let mut random = rand::thread_rng();
         let mut hash_type : String = "".to_string();
@@ -70,8 +68,9 @@ impl Hash {
             let number : i32 = random.gen_range(0..9);
             hash_type += &number.to_string();
         }
-        //hash_type.parse::<i32>().unwrap();
-        return hash_type;
+
+        self.hashtype = hash_type; 
+        
 
     }
 
