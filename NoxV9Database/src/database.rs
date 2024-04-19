@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::hashing;
 use crate::databasewriter;
 pub struct User {
@@ -20,10 +22,10 @@ impl User {
         return self;
     }
 
-    pub fn set_user_object(self,name: String, email: String, password: String, register: bool) {
+    pub fn set_user_object(self,name: String, email: String, password: String, register: bool) -> bool{
         let mut password_hash : hashing::Hash = hashing::Hash::new();
         let writer : databasewriter::Writer = databasewriter::Writer::new();
-
+        let mut on_error = false;
         if(register) {
             password_hash.gen_hash_type(&password);
         }else {
@@ -36,36 +38,52 @@ impl User {
 
                 if(name == writer.get_data_points(i as i32, 0)) {
                     hash_type = writer.get_data_points(i as i32, 2); 
-                    println!("worked");
                     break;
-                    
                 }
             }
 
-            println!("{}", hash_type);
-            password_hash.set_hash_type(password_hash.retrieve_salt(&hash_type));    
+            if(hash_type == "".to_string()) {
+                on_error = true;
+            }else {
+                password_hash.set_hash_type(password_hash.retrieve_salt(&hash_type));    
+            }
+
+        
         }
 
-        let hash = password_hash.password(&password);
+        if(!on_error) {
+            let hash = password_hash.password(&password);
 
+            let mut object_builder : String = "".to_string();
+            object_builder.push_str(&name);
+            object_builder.push_str(",");
+            object_builder.push_str(&email);
+            object_builder.push_str(",");
+            object_builder.push_str(&hash);
 
-        println!("{}", writer.get_database_length());
-    
+            writer.write_database(object_builder.to_string());
+            return true;
+        }
 
-        let mut object_builder : String = "".to_string();
-        object_builder.push_str(&name);
-        object_builder.push_str(",");
-        object_builder.push_str(&email);
-        object_builder.push_str(",");
-        object_builder.push_str(&hash);
-
-        writer.write_database(object_builder.to_string());
-
-        println!("{}", writer.read_database_id(0));
-
+        return false;
         
     }
 
     
+
+}
+
+//name,yuotube, time, date, bill, email, password.
+//car, model, name, company.
+struct CustomObject {
+    data: Vec<HashMap<String, String>>
+}
+
+
+
+impl CustomObject {
+    
+    
+
 
 }
