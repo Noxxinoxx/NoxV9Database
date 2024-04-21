@@ -25,12 +25,14 @@ impl User {
     pub fn set_user_object(self,name: String, email: String, password: String, register: bool) -> bool{
         let mut password_hash : hashing::Hash = hashing::Hash::new();
         let writer : databasewriter::Writer = databasewriter::Writer::new();
+        let writer = writer.set_cluster("database2.csv".to_string());
         let mut on_error = false;
         if(register) {
             password_hash.gen_hash_type(&password);
         }else {
 
             let database = writer.read_database();
+            println!("hej hej hej {}", database);
             let mut hash_type = "".to_string();
             for i in 0..writer.get_database_length() - 1 {
                 println!("{}", writer.read_database_id(i as i32));
@@ -64,7 +66,7 @@ impl User {
             writer.write_database(object_builder.to_string());
             return true;
         }
-
+        println!("database is cleared");
         return false;
         
     }
@@ -76,13 +78,30 @@ impl User {
 //name,yuotube, time, date, bill, email, password.
 //car, model, name, company.
 struct CustomObject {
-    data: Vec<HashMap<String, String>>
+    data: Vec<String>
 }
 
 
 
 impl CustomObject {
-    
+    pub fn new(cobject: Vec<String>) -> CustomObject {
+        let dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
+        let db_format_builder : String = "".to_string();
+
+        for i in 0..cobject.len() {
+            
+        }
+        
+        //dbwriter.write_database(data);
+        CustomObject  {
+            data : cobject,
+        }
+    }    
+
+    pub fn updateDatabase(&self, data : String) {
+        //self.data.push(data);
+
+    }
     
 
 
