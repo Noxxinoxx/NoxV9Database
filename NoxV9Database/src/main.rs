@@ -40,7 +40,17 @@ async fn main() -> std::io::Result<()> {
 fn main(){
     let user : database::User = database::User::new();
     let worte_database = user.set_user_object("Leo".to_string(), "Leo@outlook.com".to_string(), "LeosPasswordIsStrong!".to_string(), true);
+    
+    let mut co_data : Vec<String> = Vec::new();
+    
+    co_data.push("start_data".to_string());
+    co_data.push("end_data".to_string());
+    co_data.push("x".to_string());
+    co_data.push("y".to_string());
+    co_data.push("z".to_string());
+    co_data.push("T".to_string());
 
+    let co : database::CustomObject = database::CustomObject::new(co_data);
     println!("{}",worte_database);
 
 }

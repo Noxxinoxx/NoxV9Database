@@ -77,28 +77,30 @@ impl User {
 
 //name,yuotube, time, date, bill, email, password.
 //car, model, name, company.
-struct CustomObject {
-    data: Vec<String>
+pub struct CustomObject {
+   pub data: Vec<String>
 }
 
 
 
 impl CustomObject {
     pub fn new(cobject: Vec<String>) -> CustomObject {
-        let dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
-        let db_format_builder : String = "".to_string();
+        let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
+        let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster("VR_Job_Data.csv".to_string());
+        let mut db_format_builder : String = "".to_string();
 
         for i in 0..cobject.len() {
-            
+            db_format_builder.push_str(&cobject[i]); 
+            db_format_builder.push_str(","); 
         }
-        
-        //dbwriter.write_database(data);
+        //1:name2:some3:some4:somecool5:yeah.
+        new_dbwriter.write_database(db_format_builder);
         CustomObject  {
-            data : cobject,
+            data : Vec::new(),
         }
     }    
 
-    pub fn updateDatabase(&self, data : String) {
+    pub fn updateDatabase(&self, data : Vec<String>) {
         //self.data.push(data);
 
     }

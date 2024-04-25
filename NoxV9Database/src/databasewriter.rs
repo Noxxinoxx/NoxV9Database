@@ -1,4 +1,4 @@
-use std::fs;
+use std::{env, fs};
 use std::fs::File;
 use std::path::Path;
 use std::io::{Read, Write};
@@ -9,8 +9,13 @@ pub struct Writer {
 
 impl Writer {
     pub fn new() -> Writer {
+        let curr_path = env::current_dir();
+        let mut curr_path_string : String =  curr_path.ok().unwrap().into_os_string().into_string().unwrap();
+        curr_path_string.push_str("/Database/");
+        println!("{}", curr_path_string);
+
         Writer {
-            path : "/Users/nox/Desktop/Nox/NoxV9Database/NoxV9Database/Database/".to_string(),
+            path : curr_path_string,
         
         }
     }
