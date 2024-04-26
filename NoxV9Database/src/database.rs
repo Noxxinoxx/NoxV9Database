@@ -84,9 +84,9 @@ pub struct CustomObject {
 
 
 impl CustomObject {
-    pub fn new(cobject: Vec<String>) -> CustomObject {
+    pub fn new(cobject: Vec<String>, cluster_name : String) -> CustomObject {
         let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
-        let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster("VR_Job_Data.csv".to_string());
+        let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
         let mut db_format_builder : String = "".to_string();
 
         for i in 0..cobject.len() {
@@ -102,7 +102,7 @@ impl CustomObject {
 
     pub fn updateDatabase(&self, data : Vec<String>) {
         //self.data.push(data);
-
+        
     }
     
 
