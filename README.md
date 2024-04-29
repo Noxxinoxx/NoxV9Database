@@ -26,3 +26,8 @@ also for the porject we can use Noa Test Tool to simulate common crane movment. 
 we can also try new things that we dont have time to program a phyical crane with the test tool.
 
 for the VR crane I want it so it can predict how it will move. So we are going to change the test files to also contain the end position of the crane. and make the VR crane move abit faster so it allways is done before the phyical crane therefor making it easy to sync the machines.
+
+#### todo.
+* add checker so the data that you send matches the datapoints you have specified in the csv file.
+* add a good getter route in the tcp server.
+* add index geteble data.
