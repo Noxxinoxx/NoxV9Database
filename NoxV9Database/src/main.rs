@@ -37,6 +37,7 @@ fn handle_client(mut stream : TcpStream) {
     let req = String::from_utf8_lossy(&buffer[..]);
     println!("recived : {}", req);
 
+    //impl a handler to see if a user is auths for the tcp server.
 
     
 
@@ -51,13 +52,38 @@ fn handle_client(mut stream : TcpStream) {
         let co_data = handel_data_from_command(db_data);
 
     
-        let co : database::CustomObject = database::CustomObject::new(co_data, name);
+        let co : () = database::new_custom_object(co_data, name);
 
-        let res = "hello".as_bytes();
+        let res = "Success, you created a cluster and wrote the struture to it.".as_bytes();
         stream.write(res).expect("Failed to write response!");
 
-    }else {
-        let res = "hello world thing".as_bytes();
+    }else if(req.contains("&ac")) {
+
+        let clone_req = req.clone().to_string();
+        let data = handle_command(clone_req).clone();
+        let name : String = data.get(1).unwrap().to_string();
+
+        let db_data : String = data.get(3).unwrap().to_string();
+        let co_data = handel_data_from_command(db_data);
+
+    
+        let co = database::update_database(co_data, name);
+
+        let res = "Success, you wrote data to the cluster".as_bytes();
+        stream.write(res).expect("Failed to write response!");
+    }else if(req.contains("&gc")) {
+        //&gc:database1234.csv:
+        let clone_req = req.clone().to_string();
+        let data = handle_command(clone_req).clone();
+        let name : String = data.get(1).unwrap().to_string();
+
+        let db_data : String = data.get(3).unwrap().to_string();
+        let co_data = handel_data_from_command(db_data);
+
+    
+        let co = database::update_database(co_data, name);
+
+        let res = "Success, you wrote data to the cluster".as_bytes();
         stream.write(res).expect("Failed to write response!");
     }
 
@@ -81,19 +107,24 @@ fn main(){
         }
     }
 
-    let user : database::User = database::User::new();
-    let worte_database = user.set_user_object("Leo".to_string(), "Leo@outlook.com".to_string(), "LeosPasswordIsStrong!".to_string(), true);
-    
-    let mut co_data : Vec<String> = Vec::new();
-    
-    co_data.push("start_data".to_string());
-    co_data.push("end_data".to_string());
-    co_data.push("x".to_string());
-    co_data.push("y".to_string());
-    co_data.push("z".to_string());
-    co_data.push("T".to_string());
-
-    let co : database::CustomObject = database::CustomObject::new(co_data, "VR_Job_Data.csv".to_string());
-    println!("{}",worte_database);
-
 }
+/* 
+use std::io::prelude::*;
+use std::net::TcpStream;
+
+fn main() -> std::io::Result<()> {
+    let mut stream = TcpStream::connect("192.168.68.72:3001")?;
+
+    let mut buffer = [0;1024];
+
+    stream.write("&ac:database1234.csv:&data:(10,10,10),(100, 100, 100), 12, 8, 2, 1:".as_bytes())?;
+    stream.read(&mut buffer);
+
+    println!("{}", String::from_utf8_lossy(&buffer[..]));
+
+
+    Ok(())
+} // the stream is closed
+
+
+ */

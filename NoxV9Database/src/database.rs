@@ -77,34 +77,30 @@ impl User {
 
 //name,yuotube, time, date, bill, email, password.
 //car, model, name, company.
-pub struct CustomObject {
-   pub data: Vec<String>
-}
 
+pub fn new_custom_object(cobject: Vec<String>, cluster_name : String) {
+    let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
+    let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
+    let mut db_format_builder : String = "".to_string();
 
-
-impl CustomObject {
-    pub fn new(cobject: Vec<String>, cluster_name : String) -> CustomObject {
-        let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
-        let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
-        let mut db_format_builder : String = "".to_string();
-
-        for i in 0..cobject.len() {
-            db_format_builder.push_str(&cobject[i]); 
-            db_format_builder.push_str(","); 
-        }
-        //1:name2:some3:some4:somecool5:yeah.
-        new_dbwriter.write_database(db_format_builder);
-        CustomObject  {
-            data : Vec::new(),
-        }
-    }    
-
-    pub fn updateDatabase(&self, data : Vec<String>) {
-        //self.data.push(data);
-        
+    for i in 0..cobject.len() {
+        db_format_builder.push_str(&cobject[i]); 
+        db_format_builder.push_str(","); 
     }
+    //1:name2:some3:some4:somecool5:yeah.
+    new_dbwriter.write_database(db_format_builder);
     
+}  
+pub fn update_database(data : Vec<String>, cluster_name : String) {
+    //self.data.push(data);
+    let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
+    let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
+    let mut db_format_builder : String = "".to_string();
 
-
+    for i in 0..data.len() {
+        db_format_builder.push_str(&data[i]); 
+        db_format_builder.push_str(","); 
+    }
+    //1:name2:some3:some4:somecool5:yeah.
+    new_dbwriter.write_database(db_format_builder);
 }
