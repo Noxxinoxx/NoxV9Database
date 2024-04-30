@@ -74,5 +74,8 @@ impl Writer {
         return indexable[col as usize].to_string();
     }
 
+    pub fn clear(&self) {
+        self.write_to_file("".to_string());
+    }
     
 }

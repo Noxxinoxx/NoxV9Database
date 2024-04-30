@@ -95,6 +95,16 @@ fn handle_client(mut stream : TcpStream) {
         println!("{}", &co.as_str());
         let res = co.as_bytes();
         stream.write(res).expect("Failed to write response!");
+    }else if(req.contains("&rc")) {
+        let clone_req = req.clone().to_string();
+        let data = handle_command(clone_req).clone();
+        let name : String = data.get(1).unwrap().to_string();
+
+        let co = database::clear_database(name);
+        println!("{}", &co.as_str());
+        let res = co.as_bytes();
+        stream.write(res).expect("Failed to write response!");
+
     }
 
     

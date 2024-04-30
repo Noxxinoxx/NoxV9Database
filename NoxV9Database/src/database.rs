@@ -121,3 +121,12 @@ pub fn get_index_database(cluster_name : String, index : i32) -> String {
     new_dbwriter.read_database_id(index)
 
 }
+
+pub fn clear_database(cluster_name : String) -> String {
+    let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
+    let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
+
+    new_dbwriter.clear();
+
+    "Cluster is cleared!".to_string()
+}
