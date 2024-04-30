@@ -76,14 +76,24 @@ fn handle_client(mut stream : TcpStream) {
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
         let name : String = data.get(1).unwrap().to_string();
+    
+        let co = database::get_database(name);
+        println!("{}", &co.as_str());
+        let res = co.as_bytes();
+        stream.write(res).expect("Failed to write response!");
+    }else if(req.contains("&gic")) {
+        let clone_req = req.clone().to_string();
+        let data = handle_command(clone_req).clone();
+        let name : String = data.get(1).unwrap().to_string();
 
         let db_data : String = data.get(3).unwrap().to_string();
         let co_data = handel_data_from_command(db_data);
 
+        let index_db_index : i32 = co_data.get(0).unwrap().to_string().parse().unwrap();
     
-        let co = database::update_database(co_data, name);
-
-        let res = "Success, you wrote data to the cluster".as_bytes();
+        let co = database::get_index_database(name, index_db_index);
+        println!("{}", &co.as_str());
+        let res = co.as_bytes();
         stream.write(res).expect("Failed to write response!");
     }
 
@@ -93,7 +103,7 @@ fn handle_client(mut stream : TcpStream) {
 
 fn main(){
 
-    let listener = TcpListener::bind("192.168.50.12:3001").expect("Failed to bind adress");
+    let listener = TcpListener::bind("192.168.68.72:3001").expect("Failed to bind adress");
     println!("server litenening on 192.168.50.12:3001");
 
     for stream in listener.incoming() {

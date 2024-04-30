@@ -104,3 +104,20 @@ pub fn update_database(data : Vec<String>, cluster_name : String) {
     //1:name2:some3:some4:somecool5:yeah.
     new_dbwriter.write_database(db_format_builder);
 }
+pub fn get_database(cluster_name : String) -> String{
+    
+    let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
+    let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
+
+    new_dbwriter.read_database()
+
+}
+
+pub fn get_index_database(cluster_name : String, index : i32) -> String {
+
+    let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
+    let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
+
+    new_dbwriter.read_database_id(index)
+
+}
