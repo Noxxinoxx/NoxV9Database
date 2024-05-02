@@ -121,6 +121,13 @@ pub fn get_index_database(cluster_name : String, index : i32) -> String {
     new_dbwriter.read_database_id(index)
 
 }
+//save you for a rainy day.
+pub fn update_database_by_index(cluster_name : String, index : i32) {
+
+
+
+}
+
 
 pub fn clear_database(cluster_name : String) -> String {
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 

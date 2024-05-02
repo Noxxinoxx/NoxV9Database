@@ -13,6 +13,7 @@ fn handle_command(req_data : String) -> Vec<String>{
     //&cc:name:&data:1,1,1,1,1;
     //&ac = add cluster.
     //&ac:name:&data:1,1,1,1,1;
+    //&gic:name:
     
     let cluster_name = req_data.split(":");
     let data : Vec<String> = cluster_name.into_iter().map(|x| x.to_string()).collect();
@@ -31,6 +32,7 @@ fn handel_data_from_command(data : String) -> Vec<String>{
 
 fn handle_client(mut stream : TcpStream) {
     
+    println!("connected to the server with ip: {}", stream.local_addr().unwrap());
     let mut buffer = [0; 1024];
     stream.read(&mut buffer).expect("Failed to read from client");
 
@@ -105,7 +107,34 @@ fn handle_client(mut stream : TcpStream) {
         let res = co.as_bytes();
         stream.write(res).expect("Failed to write response!");
 
+    }else if(req.contains("&udj")) {
+        database::clear_database("Unity_Done_With_Job.csv".to_string());
+        let mut vec : Vec<String> = Vec::new();
+        vec.push("Job".to_string());
+        let database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
+        
+        let mut vec : Vec<String> = Vec::new();
+        vec.push("true".to_string());
+        let database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
+        
+        
+        let res = "Success!".as_bytes();
+        stream.write(res).expect("Failed to write response!");
+    }else if(req.contains("&udjr")) {
+        database::clear_database("Unity_Done_With_Job.csv".to_string());
+        let mut vec : Vec<String> = Vec::new();
+        vec.push("Job".to_string());
+        let database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
+        
+        let mut vec : Vec<String> = Vec::new();
+        vec.push("false".to_string());
+        let database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
+        
+        
+        let res = "Success!".as_bytes();
+        stream.write(res).expect("Failed to write response!");
     }
+
 
     
 }
@@ -113,7 +142,7 @@ fn handle_client(mut stream : TcpStream) {
 
 fn main(){
 
-    let listener = TcpListener::bind("192.168.68.72:3001").expect("Failed to bind adress");
+    let listener = TcpListener::bind("192.168.50.12:3001").expect("Failed to bind adress");
     println!("server litenening on 192.168.50.12:3001");
 
     for stream in listener.incoming() {
