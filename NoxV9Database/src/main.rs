@@ -10,11 +10,19 @@ use std::net::{TcpListener, TcpStream};
 fn handle_command(req_data : String) -> Vec<String>{
     //format for tcp command.
     //&cc = create cluster.
-    //&cc:name:&data:1,1,1,1,1;
+    //&cc:name:&data:1,1,1,1,1:
     //&ac = add cluster.
-    //&ac:name:&data:1,1,1,1,1;
-    //&gic:name:
-    
+    //&ac:name:&data:1,1,1,1,1:
+    //get index cluster
+    //&gic:name:&data:index:
+    //get cluster
+    //&gc:name:
+    //unity done job 
+    //&udj:
+    //unity done job revert
+    //&udjr
+
+
     let cluster_name = req_data.split(":");
     let data : Vec<String> = cluster_name.into_iter().map(|x| x.to_string()).collect();
     //let data : Vec<String> = cluster_name.collect();
@@ -107,7 +115,8 @@ fn handle_client(mut stream : TcpStream) {
         let res = co.as_bytes();
         stream.write(res).expect("Failed to write response!");
 
-    }else if(req.contains("&udj")) {
+    }else if(req.contains("&udjt")) {
+        println!("you allways get here");
         database::clear_database("Unity_Done_With_Job.csv".to_string());
         let mut vec : Vec<String> = Vec::new();
         vec.push("Job".to_string());
@@ -120,7 +129,8 @@ fn handle_client(mut stream : TcpStream) {
         
         let res = "Success!".as_bytes();
         stream.write(res).expect("Failed to write response!");
-    }else if(req.contains("&udjr")) {
+    }else if(req.contains("&udjf")) {
+        println!("unity database should be false here!");
         database::clear_database("Unity_Done_With_Job.csv".to_string());
         let mut vec : Vec<String> = Vec::new();
         vec.push("Job".to_string());
@@ -132,6 +142,22 @@ fn handle_client(mut stream : TcpStream) {
         
         
         let res = "Success!".as_bytes();
+        stream.write(res).expect("Failed to write response!");
+    }else if(req.contains("&udjget")) {
+        let clone_req = req.clone().to_string();
+        let data = handle_command(clone_req).clone();
+        let name : String = data.get(1).unwrap().to_string();
+
+        let db_data : String = data.get(3).unwrap().to_string();
+        let co_data = handel_data_from_command(db_data);
+
+        let index_db_index : i32 = co_data.get(0).unwrap().to_string().parse().unwrap();
+    
+        let co = database::get_index_database(name, index_db_index);
+        let mut builder : String = "&ud".to_owned();
+        builder.push_str(&co);
+        println!("{}", &builder.as_str());
+        let res = builder.as_bytes();
         stream.write(res).expect("Failed to write response!");
     }
 
