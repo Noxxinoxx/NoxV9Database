@@ -75,8 +75,6 @@ impl User {
 
 }
 
-//name,yuotube, time, date, bill, email, password.
-//car, model, name, company.
 
 pub fn new_custom_object(cobject: Vec<String>, cluster_name : String) {
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
@@ -87,7 +85,6 @@ pub fn new_custom_object(cobject: Vec<String>, cluster_name : String) {
         db_format_builder.push_str(&cobject[i]); 
         db_format_builder.push_str(","); 
     }
-    //1:name2:some3:some4:somecool5:yeah.
     new_dbwriter.write_database(db_format_builder);
     
 }  
@@ -101,7 +98,6 @@ pub fn update_database(data : Vec<String>, cluster_name : String) {
         db_format_builder.push_str(&data[i]); 
         db_format_builder.push_str(","); 
     }
-    //1:name2:some3:some4:somecool5:yeah.
     new_dbwriter.write_database(db_format_builder);
 }
 pub fn get_database(cluster_name : String) -> String{
