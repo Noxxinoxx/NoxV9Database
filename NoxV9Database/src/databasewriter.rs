@@ -35,7 +35,7 @@ impl Writer {
     pub fn set_cluster(mut self, name : String) -> Writer{
         self.path.push_str(&name); 
         if(!Path::new(&self.path).exists()) {
-            //if you are not a cluster rtrun a error and tell the use to create a new cluster (CustomObject).
+            //if you are not a cluster return an error and tell the use to create a new cluster (CustomObject).
            let _= File::create(&self.path);
         }
         self
@@ -77,5 +77,6 @@ impl Writer {
     pub fn clear(&self) {
         self.write_to_file("".to_string());
     }
-    
+
+
 }

@@ -1,7 +1,10 @@
 use std::collections::HashMap;
+use std::io::ErrorKind::ConnectionAborted;
 
 use crate::hashing;
 use crate::databasewriter;
+use crate::databasewriter::Writer;
+
 pub struct User {
     name : String, 
     email : String, 
@@ -70,11 +73,7 @@ impl User {
         return false;
         
     }
-
-    
-
 }
-
 
 pub fn new_custom_object(cobject: Vec<String>, cluster_name : String) {
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
@@ -100,6 +99,20 @@ pub fn update_database(data : Vec<String>, cluster_name : String) {
     }
     new_dbwriter.write_database(db_format_builder);
 }
+
+// This function is used when calling update by id, which needs \n instead of ,
+pub fn update_entire_database(data : Vec<String>, cluster_name : String) {
+    let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new();
+    let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
+    let mut db_format_builder : String = "".to_string();
+
+    for i in 0..data.len() {
+        db_format_builder.push_str(&data[i]);
+        db_format_builder.push_str("\n");
+    }
+    new_dbwriter.write_database(db_format_builder);
+}
+
 pub fn get_database(cluster_name : String) -> String{
     
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
@@ -117,13 +130,28 @@ pub fn get_index_database(cluster_name : String, index : i32) -> String {
     new_dbwriter.read_database_id(index)
 
 }
-//save you for a rainy day.
-pub fn update_database_by_index(cluster_name : String, index : i32) {
 
+// TODO fix the cluster_clone dilemma, might need to refactor a few fn's in order to do it but should be fine.
+// TODO Also take a look at the +1 of \n that you get when calling the function -> will cause problems in the future
+// Take index, take data and then update data at that index with new data.
+pub fn update_database_by_index(cluster_name : String, index : i32, data : Vec<String>) { // can add -> bool to see if update was successful, look at this later
+    let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new();
+    let cluster_clone = cluster_name.clone();
+    let cluster_clone2 = cluster_name.clone();
+    let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
 
+    let mut db_info = new_dbwriter.read_database();
+    let mut rows : Vec<String> = db_info.split('\n').into_iter().map(|x| x.to_string()).collect();
+    let mut db_format_builder : String = "".to_string();
 
+    for i in data {
+        db_format_builder.push_str(&i);
+        db_format_builder.push_str(",");
+    }
+    rows[index as usize] = db_format_builder;
+    clear_database(cluster_clone);
+    update_entire_database(rows, cluster_clone2);
 }
-
 
 pub fn clear_database(cluster_name : String) -> String {
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 

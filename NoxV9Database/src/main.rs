@@ -6,7 +6,7 @@ mod databasewriter;
 
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
-
+use crate::databasewriter::Writer;
 
 
 /*
@@ -209,7 +209,16 @@ fn handle_client(mut stream : TcpStream) {
         let res = builder.as_bytes();
         stream.write(res).expect("Failed to write response!");
     }
+    /*
+    Command: &udbi,
+    Description: udbi stands for update database by index, and takes in an index to where the new data should be put.
+    Format: &udbi:
+    */
+    else if(req.contains("&udbi")) {
+        let clone_req = req.clone().to_string();
+        let data = handle_command(clone_req).clone();
 
+    }
 
     
 }
@@ -217,9 +226,12 @@ fn handle_client(mut stream : TcpStream) {
 
 fn main(){
 
-    let listener = TcpListener::bind("192.168.68.72:3001").expect("Failed to bind adress");
+    let listener = TcpListener::bind("192.168.50.128:3001").expect("Failed to bind adress");
     println!("server litenening on 192.168.68.72:3001");
 
+    let test = vec!["0_27_0".to_string(), "1_1_1".to_string(), "FALSE".to_string()];
+
+    database::update_database_by_index("Job_Cluster.csv".to_string(), 3, test);
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
