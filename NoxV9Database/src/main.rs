@@ -2,7 +2,7 @@ mod database;
 mod init;
 mod hashing;
 mod databasewriter;
-
+mod tools;
 
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
@@ -210,10 +210,102 @@ fn handle_client(mut stream : TcpStream) {
         stream.write(res).expect("Failed to write response!");
     }
 
+    /*
+        Command: &ubp,
+        Description : the ubp is a command that changes a database so the test tool can launch the corresponding button VR command.
+        Format: &ubp:Button:
+        Button: Start,Stop,Brand,Service
+    */
+
+    else if(req.contains("&ubp")) {
+
+        let database_data = database::get_index_database("Positions_Buttons.csv".to_string(), 1);
+        let mut as_vec : Vec<String> = handel_data_from_command(database_data);
+
+        let index = button_press_handel(req.clone().to_string());
+
+        println!("button index is : {}", index);
+        //checker so you cant spam the button.
+        if(as_vec.iter().any(|x|x=="true")) {
+            println!("Noa Test Tool Working on the job!");
+            let res = "A button press is allready queued!".as_bytes();
+            stream.write(res).expect("Failed to write response!");
+            return;
+        }
+
+        database::clear_database("Positions_Buttons.csv".to_string());
+        let mut vec : Vec<String> = Vec::new();
+        vec.push("Start,Stop,Brand,Service,".to_string());
+        let database = database::update_database(vec,"Positions_Buttons.csv".to_string());
+        
+        as_vec[index as usize] = "true".to_string();
+        
+        as_vec.pop();
+        
+        println!("{:?}", as_vec);
+
+        let database = database::update_database(as_vec,"Positions_Buttons.csv".to_string());
+
+        let res = "Success, Button is pressed".as_bytes();
+        stream.write(res).expect("Failed to write response!");
+
+
+    }
+    /*
+        Command: &nrbp,
+        Description : the ubp is a command that changes a database so the test tool can launch the corresponding button VR command.
+        Format: &nrbp:Button:
+        Button: Start,Stop,Brand,Service
+        Stands For: Noa test tool return button press.
+    */
+    else if(req.contains("&nrbp")) {
+        let database_data = database::get_index_database("Positions_Buttons.csv".to_string(), 1);
+        let mut as_vec : Vec<String> = handel_data_from_command(database_data);
+
+        let index = button_press_handel(req.clone().to_string());
+
+        database::clear_database("Positions_Buttons.csv".to_string());
+        let mut vec : Vec<String> = Vec::new();
+        vec.push("Start,Stop,Brand,Service,".to_string());
+        let database = database::update_database(vec,"Positions_Buttons.csv".to_string());
+        
+        as_vec[index as usize] = "false".to_string();
+        
+        as_vec.pop();
+        
+        println!("{:?}", as_vec);
+
+        let database = database::update_database(as_vec,"Positions_Buttons.csv".to_string());
+
+        let res = "Success, Button is pressed".as_bytes();
+        stream.write(res).expect("Failed to write response!");
+
+    }
+    
+
+
+
+
+
+
 
     
 }
 
+fn button_press_handel(clone_req: String) -> i32{
+    let data = handle_command(clone_req).clone();
+    let button : String = data.get(1).unwrap().to_string();
+
+    let index: i32 = match button.as_str() {
+        "Start" => 0,
+        "Stop" => 1,
+        "Brand" => 2, 
+        "Service" => 3,
+        _ => panic!()
+    };       
+
+    return index;
+}
 
 fn main(){
 
