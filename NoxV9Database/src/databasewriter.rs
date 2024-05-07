@@ -1,7 +1,7 @@
 use std::{env, fs};
 use std::fs::File;
 use std::path::Path;
-use std::io::{Read, Write};
+use std::io::{Write}; // |Read| is never used but might be in the future
 
 pub struct Writer {
     path : String,
@@ -20,6 +20,7 @@ impl Writer {
         }
     }
 
+    // Writes a new line of data to the database
     pub fn write_database(&self, mut data: String) -> std::io::Result<()> {
         //create a string. 
         let mut database : String = self.read_database();
@@ -32,9 +33,10 @@ impl Writer {
         
     }
 
-    pub fn set_cluster(mut self, name : String) -> Writer{
-        self.path.push_str(&name); 
-        if(!Path::new(&self.path).exists()) {
+    // Sets the cluster for writer struct i.e. which database do you want to interact with
+    pub fn set_cluster(&mut self, name : &String) -> &Writer{
+        self.path.push_str(&name);
+        if !Path::new(&self.path).exists() {
             //if you are not a cluster return an error and tell the use to create a new cluster (CustomObject).
            let _= File::create(&self.path);
         }
@@ -46,15 +48,16 @@ impl Writer {
         file.write(data.as_bytes())?;
         println!("file is written!");
         Ok(())
-    
+
     }
 
-
+// Reads from database and return the data read as a String
     pub fn read_database(&self) -> String{
         let data : String = fs::read_to_string(&self.path).expect("can read file");  
         return data;
     }
 
+    #[allow(dead_code)]
     pub fn get_database_length(&self) -> usize {
         let data : String = self.read_database();
         let indexed : Vec<&str> = data.split("\n").collect();
@@ -68,15 +71,15 @@ impl Writer {
         return indexable[id as usize].to_string();
     }
 
+    #[allow(dead_code)]
     pub fn get_data_points(&self,row: i32, col: i32) -> String{
         let data : String = self.read_database_id(row);
         let indexable : Vec<&str> = data.split(",").collect();
         return indexable[col as usize].to_string();
     }
 
+    // Cleans database
     pub fn clear(&self) {
-        self.write_to_file("".to_string());
+        let _ = self.write_to_file("".to_string());
     }
-
-
 }

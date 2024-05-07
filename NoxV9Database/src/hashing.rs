@@ -19,14 +19,14 @@ use rand::prelude::*;
     the salt is stored in the passwordhash in the database. It's place between every char in the password for exemple NoxPassword hashed is 3kf3412trew
     so the final hash will be 3saltksaltfsalt etc.
 */
+#[allow(dead_code)] // only used to get rid of error message
 pub struct Hash {
     hashtype: String,
     hash: String
 }
 
-
 impl Hash {
-    
+
     pub fn new() -> Hash {
         Hash {
             hashtype : "".to_string(),
@@ -39,12 +39,10 @@ impl Hash {
     }
 
     pub fn password(&mut self,password: &String) -> String{
-
-        
         let password_hash : String = self.encrypt(password);
         let mut final_password_hash: String = "".to_string();
         let mut i = 0;
-        while(password_hash.len() != i && self.hashtype.len() != i) {
+        while password_hash.len() != i && self.hashtype.len() != i {
 
             let b: u8 = password_hash.as_bytes()[i as usize];
             final_password_hash += &(b as char).to_string();
@@ -57,21 +55,17 @@ impl Hash {
         return final_password_hash;
     }
 
-    
-
     pub fn gen_hash_type(&mut self, password: &String){
 
         let mut random = rand::thread_rng();
         let mut hash_type : String = "".to_string();
 
-        for i in 0..password.len() {
+        for _i in 0..password.len() {
             let number : i32 = random.gen_range(0..9);
             hash_type += &number.to_string();
         }
 
-        self.hashtype = hash_type; 
-        
-
+        self.hashtype = hash_type;
     }
 
     fn encrypt(&self,password: &String) -> String{
@@ -101,7 +95,7 @@ impl Hash {
 
     fn rotate_placeholder(&self, mut get_placeholader: i32) -> i32{
         
-        if(get_placeholader < 34) {
+        if get_placeholader < 34 {
             return get_placeholader;
         }
         
@@ -116,15 +110,13 @@ impl Hash {
         //hash is first
         let mut salt : String = "".to_string();
         let mut i = 1;
-        while(i < hashed_password.len()) {
+        while i < hashed_password.len() {
 
             let b: u8 = hashed_password.as_bytes()[i as usize];
             salt += &(b as char).to_string();
             i += 2;
         }
-
         return salt;
-
     }
 
 }
