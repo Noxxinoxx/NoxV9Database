@@ -25,8 +25,7 @@ fn handle_command(req_data : String) -> Vec<String>{
     return data;
 }
 
-
-/* 
+/*
     This function will handle the data that we get from a tcp res.
     so the data1, data2, data3.
     It will split the data and add it to a Vec<String> and then return it.
@@ -58,136 +57,173 @@ fn handle_client(mut stream : TcpStream) {
     /*
         Command: &cc,
         Description: the cc command stands for create cluster this is called when we want to create a new cluster in the database.
-        Format: &cc:cluster_name:&data:1,1,1,1,2,55,hej:
+        Format: token:&cc:cluster_name:&data:1,1,1,1,2,55,hej:
     */
     if req.contains("&cc") {
         
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
-        let name : String = data.get(1).unwrap().to_string();
-        //dbg!(data);
 
-        let db_data : String = data.get(3).unwrap().to_string();
-        let co_data = handel_data_from_command(db_data);
+        if Authenticator::verify_token(&data[0]) {
+            let name : String = data.get(1).unwrap().to_string();
+            //dbg!(data);
 
-    
-        let _co : () = database::new_custom_object(co_data, name);
+            let db_data : String = data.get(3).unwrap().to_string();
+            let co_data = handel_data_from_command(db_data);
 
-        let res = "Success, you created a cluster and wrote the struture to it.".as_bytes();
-        stream.write(res).expect("Failed to write response!");
 
+            let _co : () = database::new_custom_object(co_data, name);
+
+            let res = "Success, you created a cluster and wrote the struture to it.".as_bytes();
+            stream.write(res).expect("Failed to write response!");
+        } else {
+            stream.write("Invalid token".as_bytes()).expect("Failed to write response");
+        }
     }
     /*
         Command: &ac,
         Description: the ac command stands for add cluster this is called when we want to add data to an allready existring cluster in the database.
-        Format: &ac:cluster_name:&data:1,1,1,1,2,55,hej:
+        Format: token:&ac:cluster_name:&data:1,1,1,1,2,55,hej:
     */
     else if req.contains("&ac") {
 
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
-        let name : String = data.get(1).unwrap().to_string();
+        if Authenticator::verify_token(&data[0]) {
+            let name : String = data.get(2).unwrap().to_string();
 
-        let db_data : String = data.get(3).unwrap().to_string();
-        let co_data = handel_data_from_command(db_data);
+            let db_data : String = data.get(4).unwrap().to_string();
+            let co_data = handel_data_from_command(db_data);
 
-    
-        let _co = database::update_database(co_data, name);
+            let _co = database::update_database(co_data, name);
 
-        let res = "Success, you wrote data to the cluster".as_bytes();
-        stream.write(res).expect("Failed to write response!");
+            let res = "Success, you wrote data to the cluster".as_bytes();
+            stream.write(res).expect("Failed to write response!");
+        } else {
+            stream.write("Invalid token".as_bytes()).expect("Failed to write a response");
+        }
     }
     /*
         Command: &gc,
         Description: the gc command stands for get cluster this is called when we want to get all the data from a cluster in the database.
-        Format: &gc:cluster_name:
+        Format: token:&gc:cluster_name:
     */
     else if req.contains("&gc") {
         //&gc:database1234.csv:
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
-        let name : String = data.get(1).unwrap().to_string();
-    
-        let co = database::get_database(name);
-        println!("{}", &co.as_str());
-        let res = co.as_bytes();
-        stream.write(res).expect("Failed to write response!");
+
+        if Authenticator::verify_token(&data[0]) {
+            let name : String = data.get(2).unwrap().to_string();
+
+            let co = database::get_database(name);
+            println!("{}", &co.as_str());
+            let res = co.as_bytes();
+            stream.write(res).expect("Failed to write response!");
+        } else {
+            stream.write("Invalid token.".as_bytes()).expect("Failed to write response.");
+        }
     }
     /*
         Command: &gic,
         Description: the gic command stands for get index cluster this is called when we want to get data from an index line in a cluster.
-        Format: &gic:cluster_name:&data:index_as_int:
+        Format: token:&gic:cluster_name:&data:index_as_int:
     */
     else if req.contains("&gic") {
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
-        let name : String = data.get(1).unwrap().to_string();
 
-        let db_data : String = data.get(3).unwrap().to_string();
-        let co_data = handel_data_from_command(db_data);
+        if Authenticator::verify_token(&data[0]) {
+            let name : String = data.get(2).unwrap().to_string();
 
-        let index_db_index : i32 = co_data.get(0).unwrap().to_string().parse().unwrap();
-    
-        let co = database::get_index_database(name, index_db_index);
-        println!("{}", &co.as_str());
-        let res = co.as_bytes();
-        stream.write(res).expect("Failed to write response!");
+            let db_data : String = data.get(4).unwrap().to_string();
+            let co_data = handel_data_from_command(db_data);
+
+            let index_db_index : i32 = co_data.get(1).unwrap().to_string().parse().unwrap();
+
+            let co = database::get_index_database(name, index_db_index);
+            println!("{}", &co.as_str());
+            let res = co.as_bytes();
+            stream.write(res).expect("Failed to write response!");
+        } else {
+            stream.write("Invalid token.".as_bytes()).expect("Failed to write a response");
+        }
     }
     /*
         Command: &rc,
         Description: the rc command stands for reset cluster this is called when we want reset/clear a cluster from all its data.
-        Format: &rc:cluster_name:
+        Format: token:&rc:cluster_name:
     */
     else if req.contains("&rc") {
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
-        let name : String = data.get(1).unwrap().to_string();
 
-        let co = database::clear_database(&name);
-        println!("{}", &co.as_str());
-        let res = co.as_bytes();
-        stream.write(res).expect("Failed to write response!");
+        if Authenticator::verify_token(&data[0]) {
+            let name : String = data.get(2).unwrap().to_string();
 
+            let co = database::clear_database(&name);
+            println!("{}", &co.as_str());
+            let res = co.as_bytes();
+            stream.write(res).expect("Failed to write response!");
+
+        } else {
+            stream.write("Invalid token".as_bytes()).expect("Failed to write a response.");
+        }
     }
     /*
         Command: &udjt,
         Description: the udjt command stands for unity done job true and it will change a varible in the Unity_Done_With_Job.csv cluster gets called by unity when a job is done.
-        Format: &udjt:
+        Format: token:&udjt:
     */
     else if req.contains("&udjt") {
-        println!("you allways get here");
-        database::clear_database(&"Unity_Done_With_Job.csv".to_string());
-        let mut vec : Vec<String> = Vec::new();
-        vec.push("Job".to_string());
-        let _database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
-        
-        let mut vec : Vec<String> = Vec::new();
-        vec.push("true".to_string());
-        let _database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
-        
-        
-        let res = "Success!".as_bytes();
-        stream.write(res).expect("Failed to write response!");
+        let clone_req = req.clone().to_string();
+        let data = handle_command(clone_req).clone();
+
+        if Authenticator::verify_token(&data[0]) {
+            println!("you allways get here");
+            database::clear_database(&"Unity_Done_With_Job.csv".to_string());
+            let mut vec : Vec<String> = Vec::new();
+            vec.push("Job".to_string());
+            let _database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
+
+            let mut vec : Vec<String> = Vec::new();
+            vec.push("true".to_string());
+            let _database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
+
+            let res = "Success!".as_bytes();
+            stream.write(res).expect("Failed to write response!");
+        } else {
+            stream.write("Invalid token".as_bytes()).expect("Failed to write response");
+        }
+
     }
     /*
         Command: &udjf,
-        Description: the udjf command stands for unity done job false and it will change a varible in the Unity_Done_With_Job.csv cluster gets called by Noa test tool when a new job is started.
-        Format: &udjf:
+        Description: the udjf command stands for unity done job false, and it will change a varible in the Unity_Done_With_Job.csv cluster gets called by Noa test tool when a new job is started.
+        Format: token:&udjf:
     */
     else if req.contains("&udjf") {
-        println!("unity database should be false here!");
-        database::clear_database(&"Unity_Done_With_Job.csv".to_string());
-        let mut vec : Vec<String> = Vec::new();
-        vec.push("Job".to_string());
-        let _database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
-        
-        let mut vec : Vec<String> = Vec::new();
-        vec.push("false".to_string());
-        let _database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
-        
-        
-        let res = "Success!".as_bytes();
-        stream.write(res).expect("Failed to write response!");
+        let clone_req = req.clone().to_string();
+        let data = handle_command(clone_req).clone();
+
+        if Authenticator::verify_token(&data[0]) {
+            println!("unity database should be false here!");
+            database::clear_database(&"Unity_Done_With_Job.csv".to_string());
+            let mut vec : Vec<String> = Vec::new();
+            vec.push("Job".to_string());
+            let _database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
+
+            let mut vec : Vec<String> = Vec::new();
+            vec.push("false".to_string());
+            let _database = database::update_database(vec,"Unity_Done_With_Job.csv".to_string());
+
+
+            let res = "Success!".as_bytes();
+            stream.write(res).expect("Failed to write response!");
+        } else {
+            stream.write("Invalid token.".as_bytes()).expect("Failed to write response");
+        }
+
     }
     /*
         Command: &udjget,
@@ -197,61 +233,74 @@ fn handle_client(mut stream : TcpStream) {
     else if req.contains("&udjget"){
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
-        let name : String = data.get(1).unwrap().to_string();
 
-        let db_data : String = data.get(3).unwrap().to_string();
-        let co_data = handel_data_from_command(db_data);
+        if Authenticator::verify_token(&data[0]) {
+            let name : String = data.get(2).unwrap().to_string();
 
-        let index_db_index : i32 = co_data.get(0).unwrap().to_string().parse().unwrap();
-    
-        let co = database::get_index_database(name, index_db_index);
-        let mut builder : String = "&ud".to_owned();
-        builder.push_str(&co);
-        println!("{}", &builder.as_str());
-        let res = builder.as_bytes();
-        stream.write(res).expect("Failed to write response!");
+            let db_data : String = data.get(4).unwrap().to_string();
+            let co_data = handel_data_from_command(db_data);
+
+            let index_db_index : i32 = co_data.get(1).unwrap().to_string().parse().unwrap();
+
+            let co = database::get_index_database(name, index_db_index);
+            let mut builder : String = "&ud".to_owned();
+            builder.push_str(&co);
+            println!("{}", &builder.as_str());
+            let res = builder.as_bytes();
+            stream.write(res).expect("Failed to write response!");
+        } else {
+            stream.write("Invalid token".as_bytes()).expect("Failed to write a response.");
+        }
+
     }
     /*
     Command: &udbi,
     Description: udbi stands for update database by index, and takes in an index to where the new data should be put.
-    Format: &udbi:cluster_name:index:data
-    Example: &udbi:Job_Cluster.csv:3:0_27_0,1_1_1,false
+    Format: token:&udbi:cluster_name:index:data
     */
     else if req.contains("&udbi") {
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
-        let cluster_name : String = data.get(1).unwrap().to_string();
-        let co_data = handel_data_from_command(data.get(3).unwrap().to_string());
-        let db_index : i32 = co_data.get(2).unwrap().to_string().parse().unwrap();
-        database::update_database_by_index(cluster_name, db_index, data);
 
-        let res = "Success!".as_bytes();
-        stream.write(res).expect("Failed to write response!");
+        if Authenticator::verify_token(&data[0]) {
+            let cluster_name : String = data.get(2).unwrap().to_string();
+            let co_data = handel_data_from_command(data.get(4).unwrap().to_string());
+            let db_index : i32 = co_data.get(3).unwrap().to_string().parse().unwrap();
+            database::update_database_by_index(cluster_name, db_index, data);
+
+            let res = "Success!".as_bytes();
+            stream.write(res).expect("Failed to write response!");
+        } else {
+            stream.write("Invalid token".as_bytes()).expect("Failed to write a response.");
+        }
     }
     /*
     Command: &login,
-    Description: login simply stands for log in and only currently takes a password to do
-    Format: &login:password
+    Description: login simply stands for log in and takes username, password and userID (index)
+    Format: &login:username:password:userID
+    Note: UserID is the index of where the info is stored in the database, hence it is important
+    that the right username and password share the same index in the two different databases.
     */
     else if req.contains("&login") {
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
-        let res = Authenticator::verify_password(data[1].to_string());
+        let user_id = data[4].parse::<i32>().unwrap();
 
-        if res {
-            let token = Authenticator::token_generator();
-            let token_in_bytes = token.as_bytes();
-            stream.write(token_in_bytes).expect("Could not retrieve token");
+        if Authenticator::verify_password(data[2].to_string(), user_id - 1)
+            && Authenticator::verify_username(data[1].to_string(), user_id - 1){
+
+            let token = Authenticator::token_generator(&user_id.to_string());
+            stream.write(token.as_bytes()).expect("Could not retrieve token");
+        } else {
+            stream.write("User not found".as_bytes()).expect("Could not write response");
         }
     }
-
 }
-
 
 fn main(){
 
-    let listener = TcpListener::bind("192.168.50.128:3001").expect("Failed to bind adress");
-    println!("server litenening on 192.168.68.72:3001");
+    let listener = TcpListener::bind("192.168.50.128:3001").expect("Failed to bind address");
+    println!("server listening on 192.168.68.72:3001");
 
     for stream in listener.incoming() {
         match stream {
@@ -263,5 +312,4 @@ fn main(){
             }
         }
     }
-
 }
