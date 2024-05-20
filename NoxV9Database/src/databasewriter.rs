@@ -32,7 +32,7 @@ impl Writer {
         
     }
 
-    pub fn set_cluster(mut self, name : String) -> Writer{
+    pub fn set_cluster(mut self, name : &String) -> Writer{
         self.path.push_str(&name); 
         if(!Path::new(&self.path).exists()) {
             //if you are not a cluster rtrun a error and tell the use to create a new cluster (CustomObject).
@@ -62,16 +62,20 @@ impl Writer {
         return length;
     }
 
-    pub fn read_database_id(&self,id: i32) -> String{
+    pub fn read_database_id(&self,id: &i32) -> String{
         let data : String = self.read_database();
         let indexable : Vec<&str> = data.split("\n").collect();
-        return indexable[id as usize].to_string();
+        let id : usize = *id as usize;
+
+        return indexable[id].to_string();
     }
 
-    pub fn get_data_points(&self,row: i32, col: i32) -> String{
+    pub fn get_data_points(&self,row: &i32, col: &i32) -> String{
         let data : String = self.read_database_id(row);
         let indexable : Vec<&str> = data.split(",").collect();
-        return indexable[col as usize].to_string();
+
+        let col : usize = *col as usize;
+        return indexable[col].to_string();
     }
 
     pub fn clear(&self) {

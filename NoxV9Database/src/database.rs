@@ -25,21 +25,18 @@ impl User {
     pub fn set_user_object(self,name: String, email: String, password: String, register: bool) -> bool{
         let mut password_hash : hashing::Hash = hashing::Hash::new();
         let writer : databasewriter::Writer = databasewriter::Writer::new();
-        let writer = writer.set_cluster("database2.csv".to_string());
+        let writer = writer.set_cluster(&"database2.csv".to_string());
         let mut on_error = false;
         if(register) {
             password_hash.gen_hash_type(&password);
         }else {
 
             let database = writer.read_database();
-            println!("hej hej hej {}", database);
             let mut hash_type = "".to_string();
             for i in 0..writer.get_database_length() - 1 {
-                println!("{}", writer.read_database_id(i as i32));
-                println!("{}", writer.get_data_points(i as i32, 1));
-
-                if(name == writer.get_data_points(i as i32, 0)) {
-                    hash_type = writer.get_data_points(i as i32, 2); 
+                let index : i32 = i as i32;
+                if(name == writer.get_data_points(&index, &0)) {
+                    hash_type = writer.get_data_points(&index, &2); 
                     break;
                 }
             }
@@ -76,7 +73,7 @@ impl User {
 }
 
 
-pub fn new_custom_object(cobject: Vec<String>, cluster_name : String) {
+pub fn new_custom_object(cobject: &Vec<String>, cluster_name : &String) -> String{
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
     let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
     let mut db_format_builder : String = "".to_string();
@@ -86,9 +83,10 @@ pub fn new_custom_object(cobject: Vec<String>, cluster_name : String) {
         db_format_builder.push_str(","); 
     }
     new_dbwriter.write_database(db_format_builder);
+    return "created cluster".to_string();
     
 }  
-pub fn update_database(data : Vec<String>, cluster_name : String) {
+pub fn update_database(data : &Vec<String>, cluster_name : &String) -> String{
     //self.data.push(data);
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
     let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
@@ -99,8 +97,11 @@ pub fn update_database(data : Vec<String>, cluster_name : String) {
         db_format_builder.push_str(","); 
     }
     new_dbwriter.write_database(db_format_builder);
+
+    return "wrote to cluster".to_string();
+
 }
-pub fn get_database(cluster_name : String) -> String{
+pub fn get_database(cluster_name : &String) -> String{
     
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
     let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
@@ -109,7 +110,7 @@ pub fn get_database(cluster_name : String) -> String{
 
 }
 
-pub fn get_index_database(cluster_name : String, index : i32) -> String {
+pub fn get_index_database(cluster_name : &String, index : &i32) -> String {
 
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
     let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
@@ -118,13 +119,13 @@ pub fn get_index_database(cluster_name : String, index : i32) -> String {
 
 }
 //save you for a rainy day.
-pub fn update_database_by_index(cluster_name : String, index : i32) {
+pub fn update_database_by_index(cluster_name : &String, index : &i32) {
 
 
 
 }
 
-pub fn clear_database(cluster_name : String) -> String {
+pub fn clear_database(cluster_name : &String) -> String {
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
     let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);
 
