@@ -23,6 +23,7 @@ pub fn command_handler(request: String) -> String {
         "&udjget" => command_unity_done_with_job_get(&name, &data),
         "&ubp" => command_unity_button_pressed(&req),
         "&nrbp" => command_test_tool_return_button_press(&req),
+        "&nsj" => command_test_tool_stop_jobs(),
         _ => "not a server command".to_string(),
     };
 
@@ -118,4 +119,27 @@ fn command_test_tool_return_button_press(req: &String) -> String{
     let res = "Success, Button is pressed".to_string();
     return res;
 
+}
+
+fn command_test_tool_stop_jobs() -> String{
+
+    
+    let data = database::get_database(&"Job_Status.csv".to_string());
+    let data = data.split(",");
+    let mut data: Vec<String> = data.into_iter().map(|x| x.to_string()).collect();
+
+    data[1] = "true".to_string();
+
+    let mut headers: Vec<String> = Vec::new();
+    headers.push("Unity".to_string());
+    headers.push("Test_Tool\n".to_string());
+    headers.push(data.get(0).unwrap().to_owned());
+    headers.push(data.get(1).unwrap().to_owned());
+
+    let _ = database::clear_database(&"Job_Status.csv".to_string());
+
+    database::update_database(&headers,&"Job_Status.csv".to_string());
+
+
+    return "all jobs are stoped!".to_string();
 }
