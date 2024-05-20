@@ -124,7 +124,6 @@ pub fn update_database_by_index(cluster_name : String, index : i32) {
 
 }
 
-
 pub fn clear_database(cluster_name : String) -> String {
     let mut dbwriter : databasewriter::Writer = databasewriter::Writer::new(); 
     let mut new_dbwriter : databasewriter::Writer = dbwriter.set_cluster(cluster_name);

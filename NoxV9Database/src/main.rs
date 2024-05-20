@@ -3,38 +3,10 @@ mod init;
 mod hashing;
 mod databasewriter;
 mod tools;
-
+mod commandhandler;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 
-
-
-/*
-    Command handeler for tcp res data.
-    This function takes in a String type witch is the tcp res data
-    and return a Vec with the split tcp command data.
-    A command can look like this.
-    Exemple: &cc:cluster_name:&data:data1,data2,data3:
-    This command will take create a cluster with name cluster_name and add the data : data1, data2, data3.
-*/
-fn handle_command(req_data : String) -> Vec<String>{
-    let cluster_name = req_data.split(":");
-    let data : Vec<String> = cluster_name.into_iter().map(|x| x.to_string()).collect();
-    return data;
-}
-
-
-/* 
-    This function will handle the data that we get from a tcp res.
-    so the data1, data2, data3.
-    It will split the data and add it to a Vec<String> and then return it.
-*/
-fn handel_data_from_command(data : String) -> Vec<String>{
-    let spliter = data.split(",");
-    let final_data : Vec<String> = spliter.into_iter().map(|x| x.to_string()).collect();
-
-    return final_data;
-}
 
 /*
     This function handels the conneted clients and what commands they are sending to the database.
@@ -52,12 +24,15 @@ fn handle_client(mut stream : TcpStream) {
     
     println!("recived : {}", req);
 
-
+    let data = commandhandler::command_handler(request);
+    
+    println!("{}",data);
+    
     /*
         Command: &cc,
         Description: the cc command stands for create cluster this is called when we want to create a new cluster in the database.
         Format: &cc:cluster_name:&data:1,1,1,1,2,55,hej:
-    */
+    
     if(req.contains("&cc")) {
         
         let clone_req = req.clone().to_string();
@@ -281,7 +256,7 @@ fn handle_client(mut stream : TcpStream) {
         stream.write(res).expect("Failed to write response!");
 
     }
-
+    */
     
 }
 
