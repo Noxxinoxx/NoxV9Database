@@ -281,13 +281,6 @@ fn handle_client(mut stream : TcpStream) {
         stream.write(res).expect("Failed to write response!");
 
     }
-    
-
-
-
-
-
-
 
     
 }
