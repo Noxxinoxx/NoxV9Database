@@ -1,6 +1,6 @@
 use core::fmt;
 use std::collections::HashMap;
-
+use serde::{Serialize, Deserialize};
 use crate::database;
 use crate::tools;
 
@@ -14,6 +14,7 @@ use crate::tools;
     "auth" : "token"
 }
 */
+#[derive(Serialize, Deserialize, Debug)]
 struct Request {
     command : String,
     data : Vec<HashMap<String, Vec<String>>>
@@ -43,34 +44,33 @@ impl Request {
 
     pub fn new_database(database_data : &String) -> Request{
 
+        
+
 
         //the length of data is how many lines we have.
         let data = database_data.split("\n");
-        let data: Vec<&str> = data.collect();
-        
+        let mut data: Vec<&str> = data.collect();
+
         let info_length = data[0].split(",");
-        let info_length : Vec<&str> = info_length.collect();
+        let mut info_length : Vec<&str> = info_length.collect();
+        info_length.pop();
+        let mut data_vec = Vec::new(); 
 
-
-        let data_as_string = data.join("");
-
-        for row in 0..info_length.len() {
-            let row : i32 = row as i32;
-            for col in 0..data.len() {
-                let col : i32 = col as i32;
-                println!("{:?}\n", tools::get_col_data_points(&data_as_string, &row, &col));
+        for col in 0..info_length.len() {
+            let col: i32 = col as i32;
+            let mut col_hashmap : HashMap<String, Vec<String>> = HashMap::new();
+            let mut col_vec : Vec<String> = Vec::new();
+            let mut diff = 1;
+            if(data.len() == 1){diff = 0}
+            for row in 0..data.len()-diff {
+                let row : i32 = row as i32;
+                println!("row{} col{}", row, col);
+                &col_vec.push(tools::get_col_data_points(&database_data, &row, &col));
             }
-            
+            &col_hashmap.insert(tools::get_col_data_points(&database_data, &0, &col), col_vec);
+            &data_vec.push(col_hashmap);
         }
-
-    
-
         
-
-
-        let mut data_vec = Vec::new();
-        let mut map : HashMap<String, Vec<String>> = HashMap::new();
-        data_vec.push(map);
         Request {
             command : "database_data".to_string(),
             data : data_vec
@@ -109,10 +109,12 @@ pub fn command_handler(request: String) -> String {
         _ => "not a server command".to_string(),
     };
 
+    println!("data {}", return_data);
 
-    let req : Request = Request::new_database(&return_data);
 
-    return return_data;
+    let json_string = serde_json::to_string(&Request::new_database(&return_data)).unwrap();
+
+    return json_string;
 }
 
 fn command_unity_done_with_job_true() -> String {

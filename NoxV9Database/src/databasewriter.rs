@@ -67,7 +67,7 @@ impl Writer {
         let indexable : Vec<&str> = data.split("\n").collect();
         let id : usize = *id as usize;
 
-        return indexable[id].to_string();
+        return indexable[id].to_string() + "\r";
     }
 
     pub fn get_data_points(&self,row: &i32, col: &i32) -> String{

@@ -24,37 +24,44 @@ pub fn handel_data_from_command(data: String) -> Vec<String> {
     return final_data;
 }
 
-pub fn button_press_handel(clone_req: String) -> i32{
+pub fn button_press_handel(clone_req: String) -> i32 {
     let data = handle_command(clone_req).clone();
-    let button : String = data.get(1).unwrap().to_string();
+    let button: String = data.get(1).unwrap().to_string();
 
     let index: i32 = match button.as_str() {
         "Start" => 0,
         "Stop" => 1,
-        "Brand" => 2, 
+        "Brand" => 2,
         "Service" => 3,
-        _ => panic!()
-    };       
+        _ => panic!(),
+    };
 
     return index;
 }
 
-pub fn get_index_cluster(data : &Vec<String>) -> i32{
-
+pub fn get_index_cluster(data: &Vec<String>) -> i32 {
     let data = data.get(0).unwrap_or(&"0".to_string()).parse();
-    if(data.is_ok()) {
+    if (data.is_ok()) {
         return data.unwrap_or(0);
     }
     return 0;
 }
 
-pub fn get_col_data_points(data: &String,row: &i32, col: &i32) -> String{
-    let indexable : Vec<&str> = data.split(",").collect();
+pub fn get_col_data_points(data: &String, row: &i32, col: &i32) -> String {
+    let data = get_row_data_points(data, row);
+    let indexable: Vec<&str> = data.split(",").collect();
 
-    let col : usize = *col as usize;
+    let col: usize = *col as usize;
     return indexable[col].to_string();
 }
+pub fn get_row_data_points(data : &String, row: &i32) -> String {
 
+
+    let indexable: Vec<&str> = data.split("\n").collect();
+    let row: usize = *row as usize;
+
+    return indexable[row].to_string();
+}
 
 /*
 
@@ -64,11 +71,11 @@ pub fn get_col_data_points(data: &String,row: &i32, col: &i32) -> String{
 
 */
 
-pub fn command_data_combo(req : &String) -> (String, Vec<String>, String) {
+pub fn command_data_combo(req: &String) -> (String, Vec<String>, String) {
     let clone_req = req.clone().to_string();
     let data = handle_command(clone_req).clone();
     let name: String = data.get(1).unwrap().to_string();
-    let command : String = data.get(0).unwrap().to_string();
+    let command: String = data.get(0).unwrap().to_string();
     let db_data: String = data.get(3).unwrap_or(&"None".to_string()).to_string();
     let co_data = handel_data_from_command(db_data);
 
