@@ -44,9 +44,6 @@ impl Request {
 
     pub fn new_database(database_data : &String) -> Request{
 
-        
-
-
         //the length of data is how many lines we have.
         let data = database_data.split("\n");
         let mut data: Vec<&str> = data.collect();
