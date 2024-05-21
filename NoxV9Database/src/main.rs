@@ -3,9 +3,27 @@ mod hashing;
 mod databasewriter;
 mod tools;
 mod commandhandler;
+use std::collections::HashMap;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 
+
+struct Request {
+    command : String,
+    data : Vec<HashMap<String, Vec<String>>>
+}
+
+
+/*
+{
+    "command" : "nsj",
+    "data" : [
+        {"unity": ["data1", "data2", "data3", "data4"]}    
+    
+    ],
+    "auth" : "token"
+}
+*/
 
 /*
     This function handels the conneted clients and what commands they are sending to the database.

@@ -48,6 +48,14 @@ pub fn get_index_cluster(data : &Vec<String>) -> i32{
     return 0;
 }
 
+pub fn get_col_data_points(data: &String,row: &i32, col: &i32) -> String{
+    let indexable : Vec<&str> = data.split(",").collect();
+
+    let col : usize = *col as usize;
+    return indexable[col].to_string();
+}
+
+
 /*
 
 
@@ -56,7 +64,7 @@ pub fn get_index_cluster(data : &Vec<String>) -> i32{
 
 */
 
-pub fn command_data_combo(req : String) -> (String, Vec<String>, String) {
+pub fn command_data_combo(req : &String) -> (String, Vec<String>, String) {
     let clone_req = req.clone().to_string();
     let data = handle_command(clone_req).clone();
     let name: String = data.get(1).unwrap().to_string();
