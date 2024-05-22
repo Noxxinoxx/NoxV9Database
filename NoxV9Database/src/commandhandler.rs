@@ -17,6 +17,7 @@ use crate::tools;
 #[derive(Serialize, Deserialize, Debug)]
 struct Request {
     command : String,
+    cluster_name : String,
     data : Vec<HashMap<String, Vec<String>>>
 }
 
@@ -38,6 +39,7 @@ impl Request {
 
         Request {
             command : command,
+            cluster_name : name,
             data : data_vec
         }
     }
@@ -59,7 +61,8 @@ impl Request {
             let mut col_vec : Vec<String> = Vec::new();
             let mut diff = 1;
             if(data.len() == 1){diff = 0}
-            for row in 0..data.len()-diff {
+            println!("{}", data.len());
+            for row in 0..(data.len()-diff) {
                 let row : i32 = row as i32;
                 println!("row{} col{}", row, col);
                 &col_vec.push(tools::get_col_data_points(&database_data, &row, &col));
@@ -70,6 +73,7 @@ impl Request {
         
         Request {
             command : "database_data".to_string(),
+            cluster_name : "cluster".to_string(),
             data : data_vec
         }
     }
@@ -80,26 +84,42 @@ impl Request {
 pub fn command_handler(request: String) -> String {
 
     
+    let req = request.clone();
+    
+    let res = req.trim_matches(char::from(0));
+    println!("{:?}", res);
+
+
+    //let req_as_struct : serde_json::Value = serde_json::to_value(&res).unwrap();
+    //println!("{:#?}", req_as_struct);
+
+    let req_as_struct : Request = serde_json::from_str(&res).unwrap();
+   
+    println!("{:#?}", req_as_struct);
+
+    let command = req_as_struct.command;
+    let data = req_as_struct.data;
+    let cluster = req_as_struct.cluster_name;
 
 
 
     let req = request.clone();
     let name_data: (String, Vec<String>, String) = tools::command_data_combo(&request);
-    let name: String = name_data.0;
+    //let name: String = name_data.0;
     let data: Vec<String> = name_data.1;
-    let command: String = name_data.2;
+    //let command: String = name_data.2;
     let index = tools::get_index_cluster(&data);
     
 
     let return_data: String = match command.as_str() {
-        "&cc" => database::new_custom_object(&data, &name),
-        "&ac" => database::update_database(&data, &name),
-        "&gc" => database::get_database(&name),
-        "&gic" => database::get_index_database(&name, &index),
-        "&rc" => database::clear_database(&name),
+        "&cc" => database::new_custom_object(&data, &cluster),
+        "&ac" => database::update_database(&data, &cluster),
+        "&gc" => database::get_database(&cluster),
+        "&gic" => database::get_index_database(&cluster, &index),
+        "&rc" => database::clear_database(&cluster),
         "&udjf" => command_unity_done_with_job_false(),
         "&udjt" => command_unity_done_with_job_true(),
-        "&udjget" => command_unity_done_with_job_get(&name, &data),
+        "&udjget" => command_unity_done_with_job_get(&data),
         "&ubp" => command_unity_button_pressed(&req),
         "&nrbp" => command_test_tool_return_button_press(&req),
         "&nsj" => command_test_tool_stop_jobs(),
@@ -124,7 +144,7 @@ fn command_unity_done_with_job_true() -> String {
     vec.push("true".to_string());
     let database = database::update_database(&vec, &"Unity_Done_With_Job.csv".to_string());
 
-    return "Unity job true".to_string();
+    return "Unity job true,".to_string();
 }
 
 fn command_unity_done_with_job_false() -> String{
@@ -137,13 +157,13 @@ fn command_unity_done_with_job_false() -> String{
     vec.push("false".to_string());
     let database = database::update_database(&vec, &"Unity_Done_With_Job.csv".to_string());
 
-    return "Unity job false".to_string();
+    return "Unity job false,".to_string();
 }
 
-fn command_unity_done_with_job_get(name: &String, data: &Vec<String>) -> String{
-    let index_db_index: i32 = tools::get_index_cluster(data);
+fn command_unity_done_with_job_get(data: &Vec<String>) -> String{
+    let index_db_index: i32 = 1;
 
-    let co = database::get_index_database(&name, &index_db_index);
+    let co: String = database::get_index_database(&"Unity_Done_With_Job.csv".to_string(), &index_db_index);
     let mut builder: String = "&ud".to_owned();
     builder.push_str(&co);
 
@@ -160,7 +180,7 @@ fn command_unity_button_pressed(req: &String) -> String{
     //checker so you cant spam the button.
     if (as_vec.iter().any(|x| x == "true")) {
         println!("Noa Test Tool Working on the job!");
-        let res = "A button press is allready queued!".to_string();
+        let res = "A button press is allready queued!,".to_string();
         
         return res;
     }
