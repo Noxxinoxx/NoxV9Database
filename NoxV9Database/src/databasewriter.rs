@@ -20,10 +20,10 @@ impl Writer {
         }
     }
 
-    pub fn write_database(&self, mut data: String) -> std::io::Result<()> {
+    pub fn write_database(&self, mut data: &String) -> std::io::Result<()> {
         //create a string. 
         let mut database : String = self.read_database();
-        data.push_str("\n");
+        
         database.push_str(&data);
 
         let res : std::io::Result<()> = self.write_to_file(database);

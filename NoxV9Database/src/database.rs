@@ -62,7 +62,7 @@ impl User {
             object_builder.push_str(",");
             object_builder.push_str(&hash);
 
-            let _ = writer.write_database(object_builder.to_string());
+            let _ = writer.write_database(&object_builder.to_string());
             return true;
         }
         println!("database is cleared");
@@ -70,31 +70,23 @@ impl User {
     }
 }
 
-pub fn new_custom_object(cobject: &Vec<String>, cluster_name: &String) -> String {
+pub fn new_custom_object(data_info : &String, cluster_name: &String) -> String {
     let dbwriter: databasewriter::Writer = databasewriter::Writer::new();
     let new_dbwriter: databasewriter::Writer = dbwriter.set_cluster(cluster_name);
-    let mut db_format_builder: String = "".to_string();
-
-    for i in 0..cobject.len() {
-        db_format_builder.push_str(&cobject[i]);
-        db_format_builder.push_str(",");
-    }
-    let _ = new_dbwriter.write_database(db_format_builder);
+    
+    let _ = new_dbwriter.write_database(data_info);
     return "created cluster".to_string();
 }
-pub fn update_database(data: &Vec<String>, cluster_name: &String) -> String {
+pub fn update_database(data_info : &String, cluster_name: &String) -> String {
     //self.data.push(data);
     let dbwriter: databasewriter::Writer = databasewriter::Writer::new();
     let new_dbwriter: databasewriter::Writer = dbwriter.set_cluster(cluster_name);
-    let mut db_format_builder: String = "".to_string();
 
-    for i in 0..data.len() {
-        db_format_builder.push_str(&data[i]);
-        db_format_builder.push_str(",");
-    }
-    let _ = new_dbwriter.write_database(db_format_builder);
+    let _ = new_dbwriter.clear();
 
-    return "wrote to cluster".to_string();
+    let _ = new_dbwriter.write_database(data_info);
+
+    return "updated the database with new data".to_string();
 }
 pub fn get_database(cluster_name: &String) -> String {
     let dbwriter: databasewriter::Writer = databasewriter::Writer::new();

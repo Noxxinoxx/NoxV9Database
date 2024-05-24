@@ -53,8 +53,8 @@ fn handle_client(mut stream : TcpStream) {
 
 fn main(){
 
-    let listener = TcpListener::bind("192.168.68.56:3001").expect("Failed to bind adress");
-    println!("server litenening on 192.168.68.56:3001");
+    let listener = TcpListener::bind("192.168.50.12:3001").expect("Failed to bind adress");
+    println!("server litenening on 192.168.50.12:3001");
 
     for stream in listener.incoming() {
         match stream {
