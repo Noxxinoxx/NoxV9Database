@@ -25,10 +25,10 @@ pub fn handel_data_from_command(data: String) -> Vec<String> {
 }
 
 pub fn button_press_handel(clone_req: String) -> i32 {
-    let data = handle_command(clone_req).clone();
-    let button: String = data.get(1).unwrap().to_string();
+    //let data = handle_command(clone_req).clone();
+    //let button: String = data.get(1).unwrap().to_string();
 
-    let index: i32 = match button.as_str() {
+    let index: i32 = match clone_req.as_str() {
         "Start" => 0,
         "Stop" => 1,
         "Brand" => 2,
@@ -45,6 +45,14 @@ pub fn get_index_cluster(data: &Vec<String>) -> i32 {
         return data.unwrap_or(0);
     }
     return 0;
+}
+
+pub fn convert_data_to_index(command_data: &String) -> i32 {
+    let data = command_data.parse();
+    if data.is_ok() {
+        return data.unwrap();
+    }
+    return -1;
 }
 
 pub fn get_col_data_points(data: &String, row: &i32, col: &i32) -> String {

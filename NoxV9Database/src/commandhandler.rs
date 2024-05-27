@@ -19,6 +19,7 @@ struct Request {
     command: String,
     cluster_name: String,
     data: Vec<HashMap<String, Vec<String>>>,
+    command_data: String,
 }
 
 impl Request {
@@ -42,6 +43,7 @@ impl Request {
             command: command,
             cluster_name: name,
             data: data_vec,
+            command_data: "Command".to_string(),
         }
     }
 
@@ -76,6 +78,7 @@ impl Request {
             command: "database_data".to_string(),
             cluster_name: "cluster".to_string(),
             data: data_vec,
+            command_data: "Command".to_string(),
         }
     }
 
@@ -84,15 +87,21 @@ impl Request {
 
         let data = &self.data;
 
-
         let data_col: &Vec<String> = data.get(1).unwrap().get(&1.to_string()).unwrap();
 
         for index in 0..data_col.len() {
             for data_index in 0..data.len() {
-                let mut line_data = data.get(data_index).unwrap().get(&data_index.to_string()).unwrap().get(index).unwrap().to_owned();
+                let mut line_data = data
+                    .get(data_index)
+                    .unwrap()
+                    .get(&data_index.to_string())
+                    .unwrap()
+                    .get(index)
+                    .unwrap()
+                    .to_owned();
                 //println!("{:?}", line_data);
                 &line_data.push_str(",");
-                
+
                 builder.push_str(&line_data);
             }
             builder.push_str(&"\n");
@@ -111,44 +120,56 @@ pub fn command_handler(request: String) -> String {
     //println!("{:#?}", req_as_struct);
 
     let req_as_struct: Request = serde_json::from_str(&res).unwrap();
-    let req_data_as_string : String = req_as_struct.json_to_database_string_format();
-
+    let req_data_as_string: String = req_as_struct.json_to_database_string_format();
 
     let command = req_as_struct.command;
+    let command_data: String = req_as_struct.command_data;
+    let index: i32 = tools::convert_data_to_index(&command_data);
     let data = req_as_struct.data;
     let cluster = req_as_struct.cluster_name;
 
     let req = request.clone();
-    let name_data: (String, Vec<String>, String) = tools::command_data_combo(&request);
+    //let name_data: (String, Vec<String>, String) = tools::command_data_combo(&request);
     //let name: String = name_data.0;
-    let data: Vec<String> = name_data.1;
+    //let data: Vec<String> = name_data.1;
     //let command: String = name_data.2;
-    let index = tools::get_index_cluster(&data);
-
+    //let index = tools::get_index_cluster(&data);
 
     //we dont handel the info data that need to be sent like if we want to send a button press or an index for data.
     //and fix the return data now we only send database data as a return and that will work but not all the time.
     //fix that next. on Monday (27 maj)
-    let return_data: String = match command.as_str() {
-        "&cc" => database::new_custom_object(&req_data_as_string, &cluster),
-        "&ac" => database::update_database(&req_data_as_string, &cluster),
+
+    //commands that returns database values
+
+    let return_data = match command.as_str() {
         "&gc" => database::get_database(&cluster),
         "&gic" => database::get_index_database(&cluster, &index),
-        "&rc" => database::clear_database(&cluster),
-        "&udjf" => command_unity_done_with_job_false(),
-        "&udjt" => command_unity_done_with_job_true(),
-        "&udjget" => command_unity_done_with_job_get(&data),
-        "&ubp" => command_unity_button_pressed(&req),
-        "&nrbp" => command_test_tool_return_button_press(&req),
-        "&nsj" => command_test_tool_stop_jobs(),
-        _ => "not a server command".to_string(),
+        _ => "false".to_string(),
     };
-
-    println!("data {}", return_data);
-
     let d = Request::new_database(&return_data);
 
-    d.json_to_database_string_format();
+    
+    //fix status returns now we need to return a new_request type but we need to change that to make this work as exprected.
+    if return_data == "false" {
+        let return_data: String = match command.as_str() {
+            "&cc" => database::new_custom_object(&req_data_as_string, &cluster),
+            "&ac" => database::update_database(&req_data_as_string, &cluster),
+            "&rc" => database::clear_database(&cluster),
+            "&udjf" => command_unity_done_with_job_false(),
+            "&udjt" => command_unity_done_with_job_true(),
+            "&udjget" => command_unity_done_with_job_get(),
+            "&ubp" => command_unity_button_pressed(&command_data),
+            "&nrbp" => command_test_tool_return_button_press(&command_data),
+            "&nsj" => command_test_tool_stop_jobs(),
+            _ => "not a server command".to_string(),
+        };
+
+        let d = Request::new_request(&return_data);
+    }else {
+        d.json_to_database_string_format();
+    }
+
+    println!("data {}", return_data);
     println!("data1 {:#?}", &d);
 
     let json_string = serde_json::to_string(&d).unwrap();
@@ -167,14 +188,14 @@ fn command_unity_done_with_job_true() -> String {
 
 fn command_unity_done_with_job_false() -> String {
     database::clear_database(&"Unity_Done_With_Job.csv".to_string());
-    
+
     let data = "Job,\nfalse,\n".to_string();
     let database = database::update_database(&data, &"Unity_Done_With_Job.csv".to_string());
 
     return "Unity job false,".to_string();
 }
 
-fn command_unity_done_with_job_get(data: &Vec<String>) -> String {
+fn command_unity_done_with_job_get() -> String {
     let index_db_index: i32 = 1;
 
     let co: String =
@@ -202,12 +223,12 @@ fn command_unity_button_pressed(req: &String) -> String {
 
     database::clear_database(&"Positions_Buttons.csv".to_string());
     let mut build: String = "Start,Stop,Brand,Service,\n".to_string();
-    
+
     as_vec[index as usize] = "true".to_string();
 
     as_vec.pop();
 
-    let as_vec : String = as_vec.join(",");
+    let as_vec: String = as_vec.join(",");
 
     build.push_str(&as_vec);
 
@@ -226,18 +247,16 @@ fn command_test_tool_return_button_press(req: &String) -> String {
     database::clear_database(&"Positions_Buttons.csv".to_string());
 
     let mut build: String = "Start,Stop,Brand,Service,\n".to_string();
-    
+
     as_vec[index as usize] = "false".to_string();
 
     as_vec.pop();
 
-    let as_vec : String = as_vec.join(",");
+    let as_vec: String = as_vec.join(",");
 
     build.push_str(&as_vec);
 
     let database = database::update_database(&build, &"Positions_Buttons.csv".to_string());
-
-
 
     let res = "Success, Button is pressed".to_string();
     return res;
@@ -255,9 +274,9 @@ fn command_test_tool_stop_jobs() -> String {
     let database_data = data.join(",");
 
     let mut vec: String = "Unity,Test_Tool,\n".to_string();
-    
+
     vec.push_str(&database_data);
-    
+
     println!("data when stopped: {:?}", vec);
     let database = database::update_database(&vec, &"Job_Status.csv".to_string());
 
