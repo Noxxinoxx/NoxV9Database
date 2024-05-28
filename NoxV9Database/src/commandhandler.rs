@@ -211,7 +211,7 @@ fn command_unity_button_pressed(req: &String) -> String {
     //checker so you cant spam the button.
     if (as_vec.iter().any(|x| x == "true")) {
         println!("Noa Test Tool Working on the job!");
-        let res = "A button press is allready queued!,".to_string();
+        let res = "A button press is allready queued!".to_string();
 
         return res;
     }
