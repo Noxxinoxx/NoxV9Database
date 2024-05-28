@@ -14,6 +14,20 @@ use std::collections::HashMap;
     "auth" : "token"
 }
 */
+#[derive(Serialize,Deserialize,Debug)]
+struct Status {
+    status_message:String
+}
+impl Status {
+    
+    pub fn new_status(status:&String) -> Status{
+        
+        Status{
+            status_message:status.to_string()
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Request {
     command: String,
@@ -24,7 +38,6 @@ struct Request {
 
 impl Request {
     //Format: &cc:cluster_name:&data:1,1,1,1,2,55,hej:
-
     //this handle an imcomming requests data and puts it in a Request type.
     pub fn new_request(request: &String) -> Request {
         let req = request.clone();
@@ -128,28 +141,14 @@ pub fn command_handler(request: String) -> String {
     let data = req_as_struct.data;
     let cluster = req_as_struct.cluster_name;
 
-    let req = request.clone();
-    //let name_data: (String, Vec<String>, String) = tools::command_data_combo(&request);
-    //let name: String = name_data.0;
-    //let data: Vec<String> = name_data.1;
-    //let command: String = name_data.2;
-    //let index = tools::get_index_cluster(&data);
-
-    //we dont handel the info data that need to be sent like if we want to send a button press or an index for data.
-    //and fix the return data now we only send database data as a return and that will work but not all the time.
-    //fix that next. on Monday (27 maj)
-
-    //commands that returns database values
-
     let return_data = match command.as_str() {
         "&gc" => database::get_database(&cluster),
         "&gic" => database::get_index_database(&cluster, &index),
         _ => "false".to_string(),
     };
-    let d = Request::new_database(&return_data);
+    let mut d = Request::new_database(&return_data);
 
     
-    //fix status returns now we need to return a new_request type but we need to change that to make this work as exprected.
     if return_data == "false" {
         let return_data: String = match command.as_str() {
             "&cc" => database::new_custom_object(&req_data_as_string, &cluster),
@@ -163,18 +162,14 @@ pub fn command_handler(request: String) -> String {
             "&nsj" => command_test_tool_stop_jobs(),
             _ => "not a server command".to_string(),
         };
+        let status = Status::new_status  (&return_data);
+        serde_json::to_string(&status).unwrap()
 
-        let d = Request::new_request(&return_data);
     }else {
         d.json_to_database_string_format();
+        serde_json::to_string(&d).unwrap()
     }
 
-    println!("data {}", return_data);
-    println!("data1 {:#?}", &d);
-
-    let json_string = serde_json::to_string(&d).unwrap();
-
-    return json_string;
 }
 
 fn command_unity_done_with_job_true() -> String {
@@ -226,7 +221,7 @@ fn command_unity_button_pressed(req: &String) -> String {
 
     as_vec[index as usize] = "true".to_string();
 
-    as_vec.pop();
+    //as_vec.pop();
 
     let as_vec: String = as_vec.join(",");
 
