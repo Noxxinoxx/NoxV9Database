@@ -4,9 +4,9 @@ mod databasewriter;
 mod tools;
 mod commandhandler;
 use std::collections::HashMap;
-use std::io::{Read, Write};
-use std::net::{TcpListener, TcpStream};
-
+use tokio::net::TcpListener;
+use tokio::io::{AsyncReadExt,AsyncWriteExt};
+use tokio::net::TcpStream;
 
 struct Request {
     command : String,
@@ -29,42 +29,52 @@ struct Request {
     This function handels the conneted clients and what commands they are sending to the database.
     it takes in a TcpStream witch contains some data that are getting sent from the client.
 */
-fn handle_client(mut stream : TcpStream) {
+async fn handle_client(mut stream :&mut TcpStream) -> Result<(), Box<dyn std::error::Error>>   {
     
     println!("connected to the server with ip: {}", stream.local_addr().unwrap());
 
     let mut buffer = [0; 1024];
 
-    stream.read(&mut buffer).expect("Failed to read from client");
-
-    let req = String::from_utf8_lossy(&buffer[..]).to_string();
+    let req = stream.read(&mut buffer).await.expect("failed to read the data from client!");
     
-    println!("recived : {}", req);
+    if req == 0{return Ok(());}
 
-    let data = commandhandler::command_handler(req);
+
+
+    let data_string = String::from_utf8_lossy(&buffer[..]).to_string();
     
-    stream.write(data.as_bytes());
+    println!("recived : {}", data_string);
+
+    let data = commandhandler::command_handler(data_string);
+    
+    if let Err(e) = stream.write_all(&buffer[0..req]).await{eprintln!("failed to write back to socket!");return Ok(());}
+
 
     println!("{}",data);
     
-   
+    Ok(())
     
 }
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>>{
 
-fn main(){
-
-    let listener = TcpListener::bind("192.168.50.12:3001").expect("Failed to bind adress");
+    let listener = TcpListener::bind("192.168.68.56:3001").await?;
     println!("server litenening on 192.168.50.12:3001");
 
-    for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
-                std::thread::spawn(|| handle_client(stream));
-            }
-            Err(e) => {
-                eprintln!("Failed to connect to server and client: {}", e);
-            }
-        }
+    loop {
+        let (mut socket ,_) = listener.accept().await?;
+ 
+    
+        tokio::spawn(async move {
+            if let Err(e) = handle_client(&mut socket).await {
+               println!("failed to process connection; error = {}", e);
+            } 
+
+        });
+    
+        
+
+
     }
 
 }

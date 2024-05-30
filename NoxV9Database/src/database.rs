@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-
 use crate::databasewriter;
 use crate::hashing;
 pub struct User {
@@ -22,7 +21,7 @@ impl User {
     }
 
     pub fn set_user_object(
-        self,
+            self,
         name: String,
         email: String,
         password: String,
