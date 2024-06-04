@@ -132,6 +132,7 @@ fn handle_client(mut stream : TcpStream) {
     else if req.contains("&gic") {
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
+        println!("{:?}", &data);
 
         if Authenticator::verify_token(&data[0]) {
             let name : String = data.get(2).unwrap().to_string();
@@ -139,7 +140,7 @@ fn handle_client(mut stream : TcpStream) {
             let db_data : String = data.get(4).unwrap().to_string();
             let co_data = handel_data_from_command(db_data);
 
-            let index_db_index : i32 = co_data.get(1).unwrap().to_string().parse().unwrap();
+            let index_db_index : i32 = co_data.get(0).unwrap().to_string().parse().unwrap();
 
             let co = database::get_index_database(name, index_db_index);
             println!("{}", &co.as_str());
@@ -240,7 +241,7 @@ fn handle_client(mut stream : TcpStream) {
             let db_data : String = data.get(4).unwrap().to_string();
             let co_data = handel_data_from_command(db_data);
 
-            let index_db_index : i32 = co_data.get(1).unwrap().to_string().parse().unwrap();
+            let index_db_index : i32 = co_data.get(0).unwrap().to_string().parse().unwrap();
 
             let co = database::get_index_database(name, index_db_index);
             let mut builder : String = "&ud".to_owned();
@@ -256,7 +257,7 @@ fn handle_client(mut stream : TcpStream) {
     /*
     Command: &udbi,
     Description: udbi stands for update database by index, and takes in an index to where the new data should be put.
-    Format: token:&udbi:cluster_name:index:data
+    Format: token:&udbi:cluster_name:index:data:
     */
     else if req.contains("&udbi") {
         let clone_req = req.clone().to_string();
@@ -277,20 +278,22 @@ fn handle_client(mut stream : TcpStream) {
     /*
     Command: &login,
     Description: login simply stands for log in and takes username, password and userID (index)
-    Format: &login:username:password:userID
+    Format: &login:username:password:userID:
     Note: UserID is the index of where the info is stored in the database, hence it is important
     that the right username and password share the same index in the two different databases.
     */
     else if req.contains("&login") {
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
-        let user_id = data[4].parse::<i32>().unwrap();
+        let user_id = data[3].parse::<i32>().unwrap();
 
-        if Authenticator::verify_password(data[2].to_string(), user_id - 1)
+        // Checks so that index is not longer than db length, to prevent panic.
+        if Authenticator::check_db_length(user_id)
+            && Authenticator::verify_password(data[2].to_string(), user_id - 1)
             && Authenticator::verify_username(data[1].to_string(), user_id - 1){
 
-            let token = Authenticator::token_generator(&user_id.to_string());
-            stream.write(token.as_bytes()).expect("Could not retrieve token");
+            let response = "true".to_string();
+            stream.write(response.as_bytes()).expect("Could not retrieve token");
         } else {
             stream.write("User not found".as_bytes()).expect("Could not write response");
         }
@@ -299,7 +302,10 @@ fn handle_client(mut stream : TcpStream) {
 
 fn main(){
 
-    let listener = TcpListener::bind("192.168.50.128:3001").expect("Failed to bind address");
+    let home_ip = String::from("192.168.1.242:3001");
+    let _work_ip = String::from("192.168.50.128:3001");
+
+    let listener = TcpListener::bind(home_ip).expect("Failed to bind address");
     println!("server listening on 192.168.68.72:3001");
 
     for stream in listener.incoming() {

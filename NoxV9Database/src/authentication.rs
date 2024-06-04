@@ -62,6 +62,7 @@ impl Authenticator {
         false
     }
 
+    // Implmentera en funktion som kollar ifall index är > antalrader if true -> false
     pub fn verify_username(username : String, index : i32) -> bool {
         let mut local_username = database::get_index_database("Users.csv".to_string(), index);
         local_username.pop();
@@ -69,6 +70,15 @@ impl Authenticator {
             return true;
         }
         return false;
+    }
+
+    pub fn check_db_length(index : i32) -> bool {
+        let database_res = database::get_database("Users.csv".to_string());
+        let amount_of_newlines = database_res.as_bytes().iter().filter(|&&c| c == b'\n').count();
+        if index > (amount_of_newlines as i32 - 1) {
+            return false;
+        }
+        return true;
     }
  }
 
