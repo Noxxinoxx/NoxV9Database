@@ -47,10 +47,10 @@ async fn handle_client(mut stream :&mut TcpStream) -> Result<(), Box<dyn std::er
 
     let data = commandhandler::command_handler(data_string);
     
-    if let Err(e) = stream.write_all(&buffer[0..req]).await{eprintln!("failed to write back to socket!");return Ok(());}
+    if let Err(e) = stream.write_all(data.as_bytes()).await{eprintln!("failed to write back to socket!");return Ok(());}
 
 
-    println!("{}",data);
+    println!("data that is returned from the database {}",data);
     
     Ok(())
     
@@ -58,7 +58,7 @@ async fn handle_client(mut stream :&mut TcpStream) -> Result<(), Box<dyn std::er
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>>{
 
-    let listener = TcpListener::bind("192.168.68.56:3001").await?;
+    let listener = TcpListener::bind("192.168.1.143:3001").await?;
     println!("server litenening on 192.168.50.12:3001");
 
     loop {
