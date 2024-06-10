@@ -58,7 +58,7 @@ async fn handle_client(mut stream :&mut TcpStream) -> Result<(), Box<dyn std::er
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>>{
 
-    let listener = TcpListener::bind("192.168.1.143:3001").await?;
+    let listener = TcpListener::bind("192.168.50.12:3001").await?;
     println!("server litenening on 192.168.50.12:3001");
 
     loop {

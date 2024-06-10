@@ -140,7 +140,7 @@ pub fn command_handler(request: String) -> String {
     let index: i32 = tools::convert_data_to_index(&command_data);
     let data = req_as_struct.data;
     let cluster = req_as_struct.cluster_name;
-
+    //commands here are for database interactions like getting data from a cluster.
     let return_data = match command.as_str() {
         "&gc" => database::get_database(&cluster),
         "&gic" => database::get_index_database(&cluster, &index),
@@ -148,7 +148,7 @@ pub fn command_handler(request: String) -> String {
     };
     let mut d = Request::new_database(&return_data);
 
-    
+    //and command here is for get info or configuring things about the cluster.
     if return_data == "false" {
         let return_data: String = match command.as_str() {
             "&cc" => database::new_custom_object(&req_data_as_string, &cluster),

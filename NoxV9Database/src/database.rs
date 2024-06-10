@@ -81,7 +81,7 @@ pub fn update_database(data_info : &String, cluster_name: &String) -> String {
     let dbwriter: databasewriter::Writer = databasewriter::Writer::new();
     let new_dbwriter: databasewriter::Writer = dbwriter.set_cluster(cluster_name);
 
-    let _ = new_dbwriter.clear();
+    //let _ = new_dbwriter.clear();
 
     let _ = new_dbwriter.write_database(data_info);
 
