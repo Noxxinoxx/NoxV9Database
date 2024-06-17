@@ -51,7 +51,7 @@ impl Writer {
 
 
     pub fn read_database(&self) -> String{
-        let data : String = fs::read_to_string(&self.path).expect("can read file");  
+        let data : String = fs::read_to_string(&self.path).expect("cant read file");  
         return data;
     }
 
