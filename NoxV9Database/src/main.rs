@@ -33,7 +33,7 @@ async fn handle_client(mut stream :&mut TcpStream) -> Result<(), Box<dyn std::er
     
     println!("connected to the server with ip: {}", stream.local_addr().unwrap());
 
-    let mut buffer = [0; 1024];
+    let mut buffer = [0; 10240];
 
     let req = stream.read(&mut buffer).await.expect("failed to read the data from client!");
     
