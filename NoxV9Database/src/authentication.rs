@@ -12,9 +12,8 @@ pub struct Authenticator {}
 impl Authenticator {
 
     // This method takes in a &String and simply updates the db with it using update_database.
-    fn add_token_to_db(token : &String, index : &String) {
-        let mut token_vec : Vec<String> = token.split('\n').into_iter().map(|x| x.to_string()).collect();
-        token_vec.push(index.to_string());
+    fn add_token_to_db(token : &String) {
+        let token_vec : Vec<String> = token.split('\n').into_iter().map(|x| x.to_string()).collect();
         database::update_database(token_vec, "tokens.csv".to_string());
     }
 
@@ -28,16 +27,16 @@ impl Authenticator {
     }
 
     // This method generates a token which has been hashed using Hash, for more info see hash struct
-    pub fn token_generator(index : &String) -> String {
+    pub fn token_generator() -> String {
         let random_password = Self::random_password_generator();
         let mut hasher = Hash::new();
         hasher.gen_hash_type(&random_password);
         let token = hasher.password(&random_password);
-        Self::add_token_to_db(&token, &index);
+        Self::add_token_to_db(&token);
         token
     }
     // This method is quite self-explanatory and generates a random number between 16-24 and then
-    // fills an empty string with random letters from the alphabet, this is the password used in token_generator
+    // fills an empty string with random characters, this is the password used in token_generator
     fn random_password_generator() -> String {
         let mut rng = rand::thread_rng();
         let mut password = String::new();

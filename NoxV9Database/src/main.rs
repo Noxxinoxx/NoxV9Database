@@ -4,7 +4,6 @@ mod hashing;
 mod databasewriter;
 mod authentication;
 
-
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use crate::authentication::Authenticator;
@@ -253,7 +252,7 @@ fn handle_client(mut stream : TcpStream) {
             stream.write("Invalid token".as_bytes()).expect("Failed to write a response.");
         }
 
-    }
+    } 
     /*
     Command: &udbi,
     Description: udbi stands for update database by index, and takes in an index to where the new data should be put.
@@ -292,7 +291,7 @@ fn handle_client(mut stream : TcpStream) {
             && Authenticator::verify_password(data[2].to_string(), user_id - 1)
             && Authenticator::verify_username(data[1].to_string(), user_id - 1){
 
-            let response = "true".to_string();
+            let response = Authenticator::token_generator();
             stream.write(response.as_bytes()).expect("Could not retrieve token");
         } else {
             stream.write("User not found".as_bytes()).expect("Could not write response");
@@ -302,10 +301,10 @@ fn handle_client(mut stream : TcpStream) {
 
 fn main(){
 
-    let home_ip = String::from("192.168.1.242:3001");
+    let _home_ip = String::from("192.168.1.242:3001");
     let _work_ip = String::from("192.168.50.128:3001");
 
-    let listener = TcpListener::bind(home_ip).expect("Failed to bind address");
+    let listener = TcpListener::bind(_home_ip).expect("Failed to bind address");
     println!("server listening on 192.168.68.72:3001");
 
     for stream in listener.incoming() {
