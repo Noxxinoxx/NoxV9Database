@@ -195,7 +195,6 @@ fn handle_client(mut stream : TcpStream) {
         } else {
             stream.write("Invalid token".as_bytes()).expect("Failed to write response");
         }
-
     }
     /*
         Command: &udjf,
@@ -228,14 +227,14 @@ fn handle_client(mut stream : TcpStream) {
     /*
         Command: &udjget,
         Description: the udjget is a get command and will send the current varible in the Unity_Done_With_Job.csv cluster.
-        Format: &udjget:
+        Format: token:&udjget:
     */
     else if req.contains("&udjget"){
         let clone_req = req.clone().to_string();
         let data = handle_command(clone_req).clone();
 
         if Authenticator::verify_token(&data[0]) {
-            let name : String = data.get(2).unwrap().to_string();
+            /* let name : String = data.get(2).unwrap().to_string();
 
             let db_data : String = data.get(4).unwrap().to_string();
             let co_data = handel_data_from_command(db_data);
@@ -246,7 +245,11 @@ fn handle_client(mut stream : TcpStream) {
             let mut builder : String = "&ud".to_owned();
             builder.push_str(&co);
             println!("{}", &builder.as_str());
-            let res = builder.as_bytes();
+            let res = builder.as_bytes(); */
+
+            let co = database::get_index_database("Unity_Done_With_Job.csv".to_string(), 1);
+            let res = co.as_bytes();
+
             stream.write(res).expect("Failed to write response!");
         } else {
             stream.write("Invalid token".as_bytes()).expect("Failed to write a response.");
@@ -304,7 +307,7 @@ fn main(){
     let _home_ip = String::from("192.168.1.242:3001");
     let _work_ip = String::from("192.168.50.128:3001");
 
-    let listener = TcpListener::bind(_home_ip).expect("Failed to bind address");
+    let listener = TcpListener::bind(_work_ip).expect("Failed to bind address");
     println!("server listening on 192.168.68.72:3001");
 
     for stream in listener.incoming() {
