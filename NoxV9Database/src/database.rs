@@ -88,6 +88,8 @@ pub fn update_database(data_info : &String, cluster_name: &String) -> String {
     return "updated the database with new data".to_string();
 }
 pub fn get_database(cluster_name: &String) -> String {
+
+    println!("cluseter name : {}", cluster_name);
     let dbwriter: databasewriter::Writer = databasewriter::Writer::new();
     let new_dbwriter: databasewriter::Writer = dbwriter.set_cluster(cluster_name);
 

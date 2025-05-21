@@ -153,13 +153,7 @@ pub fn command_handler(request: String) -> String {
         let return_data: String = match command.as_str() {
             "&cc" => database::new_custom_object(&req_data_as_string, &cluster),
             "&ac" => database::update_database(&req_data_as_string, &cluster),
-            "&rc" => database::clear_database(&cluster),
-            "&udjf" => command_unity_done_with_job_false(),
-            "&udjt" => command_unity_done_with_job_true(),
-            "&udjget" => command_unity_done_with_job_get(),
-            "&ubp" => command_unity_button_pressed(&command_data),
-            "&nrbp" => command_test_tool_return_button_press(&command_data),
-            "&nsj" => command_test_tool_stop_jobs(),
+            "&rc" => database::clear_database(&cluster),        
             _ => "not a server command".to_string(),
         };
         let status = Status::new_status  (&return_data);
@@ -170,110 +164,4 @@ pub fn command_handler(request: String) -> String {
         serde_json::to_string(&d).unwrap()
     }
 
-}
-
-fn command_unity_done_with_job_true() -> String {
-    database::clear_database(&"Unity_Done_With_Job.csv".to_string());
-
-    let data = "Job,\ntrue,\n".to_string();
-    let database = database::update_database(&data, &"Unity_Done_With_Job.csv".to_string());
-
-    return "Unity job true,".to_string();
-}
-
-fn command_unity_done_with_job_false() -> String {
-    database::clear_database(&"Unity_Done_With_Job.csv".to_string());
-
-    let data = "Job,\nfalse,\n".to_string();
-    let database = database::update_database(&data, &"Unity_Done_With_Job.csv".to_string());
-
-    return "Unity job false,".to_string();
-}
-
-fn command_unity_done_with_job_get() -> String {
-    let index_db_index: i32 = 1;
-
-    let co: String =
-        database::get_index_database(&"Unity_Done_With_Job.csv".to_string(), &index_db_index);
-    let mut builder: String = "&ud".to_owned();
-    builder.push_str(&co);
-
-    return builder.to_string();
-}
-
-fn command_unity_button_pressed(req: &String) -> String {
-    let database_data = database::get_index_database(&"Positions_Buttons.csv".to_string(), &1);
-    let mut as_vec: Vec<String> = tools::handel_data_from_command(database_data);
-
-    let index = tools::button_press_handel(req.clone().to_string());
-
-    println!("button index is : {}", index);
-    //checker so you cant spam the button.
-    if (as_vec.iter().any(|x| x == "true")) {
-        println!("Noa Test Tool Working on the job!");
-        let res = "A button press is allready queued!".to_string();
-
-        return res;
-    }
-
-    database::clear_database(&"Positions_Buttons.csv".to_string());
-    let mut build: String = "Start,Stop,Brand,Service,\n".to_string();
-
-    as_vec[index as usize] = "true".to_string();
-
-    //as_vec.pop();
-
-    let as_vec: String = as_vec.join(",");
-
-    build.push_str(&as_vec);
-
-    let database = database::update_database(&build, &"Positions_Buttons.csv".to_string());
-
-    let res = "Success, Button is pressed".to_string();
-    return res;
-}
-
-fn command_test_tool_return_button_press(req: &String) -> String {
-    let database_data = database::get_index_database(&"Positions_Buttons.csv".to_string(), &1);
-    let mut as_vec: Vec<String> = tools::handel_data_from_command(database_data);
-
-    let index = tools::button_press_handel(req.clone().to_string());
-
-    database::clear_database(&"Positions_Buttons.csv".to_string());
-
-    let mut build: String = "Start,Stop,Brand,Service,\n".to_string();
-
-    as_vec[index as usize] = "false".to_string();
-
-    as_vec.pop();
-
-    let as_vec: String = as_vec.join(",");
-
-    build.push_str(&as_vec);
-
-    let database = database::update_database(&build, &"Positions_Buttons.csv".to_string());
-
-    let res = "Success, Button is pressed".to_string();
-    return res;
-}
-
-fn command_test_tool_stop_jobs() -> String {
-    let data = database::get_index_database(&"Job_Status.csv".to_string(), &1);
-    let data = data.split(",");
-    let mut data: Vec<String> = data.into_iter().map(|x| x.to_string()).collect();
-    let _ = database::clear_database(&"Job_Status.csv".to_string());
-
-    println!("data before : {:?}", data);
-    data[1] = "true".to_string();
-    data.pop();
-    let database_data = data.join(",");
-
-    let mut vec: String = "Unity,Test_Tool,\n".to_string();
-
-    vec.push_str(&database_data);
-
-    println!("data when stopped: {:?}", vec);
-    let database = database::update_database(&vec, &"Job_Status.csv".to_string());
-
-    return "all jobs are stoped!".to_string();
 }
