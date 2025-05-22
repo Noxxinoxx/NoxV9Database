@@ -13,7 +13,6 @@ struct Request {
     data : Vec<HashMap<String, Vec<String>>>
 }
 
-
 /*
 {
     "command" : "nsj",
@@ -58,7 +57,7 @@ async fn handle_client(mut stream :&mut TcpStream) -> Result<(), Box<dyn std::er
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>>{
 
-    let listener = TcpListener::bind("192.168.2.119:3001").await?;
+    let listener = TcpListener::bind("localhost:3001").await?;
     println!("server litenening on 192.168.50.12:3001");
 
     loop {
@@ -72,8 +71,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>>{
 
         });
     
-        
-
 
     }
 

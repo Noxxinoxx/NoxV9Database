@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use serde_json::json;
 use std::io::prelude::*;
 use std::net::TcpStream;
-static IP_ADDRESS: &str = "192.168.2.119:3001";
+static IP_ADDRESS: &str = "localhost:3001";
 
 //used for creating fake/zero data for DatabaseCom.
 pub fn zero_data() -> Vec<HashMap<String,Vec<String>>> {
@@ -20,9 +20,7 @@ pub fn zero_data() -> Vec<HashMap<String,Vec<String>>> {
     map2.insert("1".to_string(),inside_hashmap2);
     data.push(map);
     data.push(map2);
-
-    println!("data : {:?}", data);
-
+ 
     return data;
 }
 //single line data send creates one line add to the database csv.
@@ -93,7 +91,7 @@ impl DatabaseCom {
 
         let _ = stream.read(&mut buffer);
 
-        println!("{}", String::from_utf8_lossy(&buffer[..]));
+        println!("The json obj that was send : {}", String::from_utf8_lossy(&buffer[..]));
         Ok(())
 
     }
